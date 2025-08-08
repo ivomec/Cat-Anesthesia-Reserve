@@ -14,23 +14,22 @@ document.addEventListener('DOMContentLoaded', function () {
         // 전역 이벤트 리스너 바인딩
         const globalInputs = ['globalPetName', 'weight', 'visitDate', 'patient_status', 'renal_status', 'chill_protocol', 'liverIssue', 'kidneyIssue'];
         globalInputs.forEach(id => document.getElementById(id)?.addEventListener('input', calculateAll));
-        globalInputs.forEach(id => document.getElementById(id)?.addEventListener('change', calculateAll));
         
         // 기능 버튼 이벤트 리스너
         document.getElementById('saveJsonBtn').addEventListener('click', saveDataAsJson);
-        document.getElementById('loadJsonBtn').addEventListener('click', () => document.getElementById('json-file-input').click());
-        document.getElementById('json-file-input').addEventListener('change', handleFileLoad);
+        document.getElementById('loadJsonBtn').addEventListener('click', () => document.getElementById('jsonFileInput').click());
+        document.getElementById('jsonFileInput').addEventListener('change', handleFileLoad);
         document.getElementById('saveImageBtn').addEventListener('click', saveActiveTabAsImage);
         
         // ET Tube 탭
-        document.getElementById('weight-input').addEventListener('input', calculateWeightSize);
-        document.getElementById('calculate-trachea-btn').addEventListener('click', calculateTracheaSize);
-        document.getElementById('trachea-input').addEventListener('keydown', (event) => { if (event.key === 'Enter') calculateTracheaSize(); });
-        document.getElementById('saveCatEtTubeSelection').addEventListener('click', saveCatEtTubeSelection);
+        document.getElementById('weight-input')?.addEventListener('input', calculateWeightSize);
+        document.getElementById('calculate-trachea-btn')?.addEventListener('click', calculateTracheaSize);
+        document.getElementById('trachea-input')?.addEventListener('keydown', (event) => { if (event.key === 'Enter') calculateTracheaSize(); });
+        document.getElementById('saveCatEtTubeSelection')?.addEventListener('click', saveCatEtTubeSelection);
         
         // 사이클로스포린 탭
-        document.getElementById('petWeightCyclo').addEventListener('input', calculateCycloDose);
-        document.getElementById('durationCyclo').addEventListener('input', calculateCycloDose);
+        document.getElementById('petWeightCyclo')?.addEventListener('input', calculateCycloDose);
+        document.getElementById('durationCyclo')?.addEventListener('input', calculateCycloDose);
 
         // 노스판 탭
         const attachDateEl = document.getElementById('attachDate');
@@ -42,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
             attachTimeEl.value = now.toISOString().slice(11,16);
             attachDateEl.addEventListener('change', calculateRemovalDate);
             attachTimeEl.addEventListener('change', calculateRemovalDate);
-            calculateRemovalDate();
         }
 
         // 구내염 탭 차트 생성
@@ -56,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 초기 계산 실행
         calculateAll();
+        calculateRemovalDate();
     }
 
     // --- 탭 기능 ---
@@ -87,12 +86,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const name = document.getElementById('globalPetName').value.trim();
         const hasJongseong = hasFinalConsonant(name);
         const nameOrDefault = name || "아이";
+        const subjectParticle = hasJongseong ? '을' : '를';
 
         const titles = {
             stomatitisTitle: `우리 ${nameOrDefault}${hasJongseong ? "이를" : "를"} 위한<br>만성 구내염 및 전발치 안내서`,
             cyclosporineTitle: `✨ ${nameOrDefault}${hasJongseong ? '이의' : '의'} 사이클로스포린 복약 안내문 ✨`,
             norspanTitle: `${nameOrDefault}${hasJongseong ? '이를' : '를'} 위한 통증 관리 패치 안내문`,
-            gabapentinTitle: `<span>${nameOrDefault}</span><span>${hasJongseong ? '을' : '를'}</span> 위한 편안한 진료 준비 안내서`
+            gabapentinTitle: `<span>${nameOrDefault}</span><span>${subjectParticle}</span> 위한 편안한 진료 준비 안내서`
         };
 
         for (const id in titles) {
@@ -101,89 +101,112 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- 데이터 저장/불러오기/이미지 기능 ---
+    // --- 데이터 저장/불러오기/이미지 기능 (수정됨) ---
     function gatherDashboardData() {
-        const dischargeMeds = [];
-        document.querySelectorAll('#dischargeTab .med-table tbody tr').forEach(row => {
-            const doseInput = row.querySelector('.dose');
-            dischargeMeds.push({
-                drug: row.dataset.drug,
-                selected: row.querySelector('.med-checkbox').checked,
-                days: row.querySelector('.days').value,
-                dose: doseInput ? doseInput.value : null
-            });
-        });
+        try {
+            const dischargeMeds = [];
+            document.querySelectorAll('#dischargeTab .med-table tbody tr').forEach(row => {
+                const medCheckbox = row.querySelector('.med-checkbox');
+                const daysInput = row.querySelector('.days');
+                const doseInput = row.querySelector('.dose');
 
-        return {
-            visitDate: document.getElementById('visitDate').value,
-            petName: document.getElementById('globalPetName').value,
-            weight: document.getElementById('weight').value,
-            patientStatus: document.getElementById('patient_status').value,
-            renalStatus: document.getElementById('renal_status').value,
-            chillProtocol: document.getElementById('chill_protocol').value,
-            liverIssue: document.getElementById('liverIssue').checked,
-            kidneyIssue: document.getElementById('kidneyIssue').checked,
-            etTubeInfo: selectedCatTubeInfo,
-            dischargeMeds: dischargeMeds,
-            etTubeNotes: document.getElementById('cat_selectedEtTubeNotes').value,
-            norspanAttachDate: document.getElementById('attachDate').value,
-            norspanAttachTime: document.getElementById('attachTime').value
-        };
+                if (row.dataset.drug && medCheckbox && daysInput) {
+                    dischargeMeds.push({
+                        drug: row.dataset.drug,
+                        selected: medCheckbox.checked,
+                        days: daysInput.value,
+                        dose: doseInput ? doseInput.value : null
+                    });
+                }
+            });
+
+            return {
+                visitDate: document.getElementById('visitDate')?.value || '',
+                petName: document.getElementById('globalPetName')?.value || '',
+                weight: document.getElementById('weight')?.value || '',
+                patientStatus: document.getElementById('patient_status')?.value || 'healthy',
+                renalStatus: document.getElementById('renal_status')?.value || 'healthy',
+                chillProtocol: document.getElementById('chill_protocol')?.value || 'no',
+                liverIssue: document.getElementById('liverIssue')?.checked || false,
+                kidneyIssue: document.getElementById('kidneyIssue')?.checked || false,
+                etTubeInfo: selectedCatTubeInfo,
+                dischargeMeds: dischargeMeds,
+                etTubeNotes: document.getElementById('cat_selectedEtTubeNotes')?.value || '',
+                norspanAttachDate: document.getElementById('attachDate')?.value || '',
+                norspanAttachTime: document.getElementById('attachTime')?.value || ''
+            };
+        } catch (error) {
+            console.error("Error in gatherDashboardData:", error);
+            alert("데이터를 수집하는 중 오류가 발생했습니다. 개발자 콘솔을 확인해주세요.");
+            return null;
+        }
     }
 
     function applyDashboardData(data) {
-        if (!data) return;
-        document.getElementById('visitDate').value = data.visitDate;
-        document.getElementById('globalPetName').value = data.petName;
-        document.getElementById('weight').value = data.weight;
-        document.getElementById('patient_status').value = data.patientStatus;
-        document.getElementById('renal_status').value = data.renalStatus;
-        document.getElementById('chill_protocol').value = data.chillProtocol;
-        document.getElementById('liverIssue').checked = data.liverIssue;
-        document.getElementById('kidneyIssue').checked = data.kidneyIssue;
+        try {
+            if (!data) return;
+            document.getElementById('visitDate').value = data.visitDate || new Date().toISOString().slice(0, 10);
+            document.getElementById('globalPetName').value = data.petName || '';
+            document.getElementById('weight').value = data.weight || '';
+            document.getElementById('patient_status').value = data.patientStatus || 'healthy';
+            document.getElementById('renal_status').value = data.renalStatus || 'healthy';
+            document.getElementById('chill_protocol').value = data.chillProtocol || 'no';
+            document.getElementById('liverIssue').checked = data.liverIssue || false;
+            document.getElementById('kidneyIssue').checked = data.kidneyIssue || false;
 
-        selectedCatTubeInfo = data.etTubeInfo || { size: null, cuff: false, notes: '' };
-        document.getElementById('cat_selectedEtTubeSize').value = selectedCatTubeInfo.size;
-        document.getElementById('cat_selectedEtTubeCuff').checked = selectedCatTubeInfo.cuff;
-        document.getElementById('cat_selectedEtTubeNotes').value = data.etTubeNotes || '';
+            selectedCatTubeInfo = data.etTubeInfo || { size: null, cuff: false, notes: '' };
+            document.getElementById('cat_selectedEtTubeSize').value = selectedCatTubeInfo.size || '';
+            document.getElementById('cat_selectedEtTubeCuff').checked = selectedCatTubeInfo.cuff || false;
+            document.getElementById('cat_selectedEtTubeNotes').value = selectedCatTubeInfo.notes || '';
 
+            if (data.dischargeMeds && Array.isArray(data.dischargeMeds)) {
+                data.dischargeMeds.forEach(savedMed => {
+                    const row = document.querySelector(`#dischargeTab tr[data-drug="${savedMed.drug}"]`);
+                    if (row) {
+                        row.querySelector('.med-checkbox').checked = savedMed.selected;
+                        row.querySelector('.days').value = savedMed.days;
+                        const doseInput = row.querySelector('.dose');
+                        if (doseInput && savedMed.dose !== null) doseInput.value = savedMed.dose;
+                    }
+                });
+            }
+            
+            document.getElementById('attachDate').value = data.norspanAttachDate || '';
+            document.getElementById('attachTime').value = data.norspanAttachTime || '';
 
-        if (data.dischargeMeds) {
-            data.dischargeMeds.forEach(savedMed => {
-                const row = document.querySelector(`#dischargeTab tr[data-drug="${savedMed.drug}"]`);
-                if (row) {
-                    row.querySelector('.med-checkbox').checked = savedMed.selected;
-                    row.querySelector('.days').value = savedMed.days;
-                    const doseInput = row.querySelector('.dose');
-                    if (doseInput) doseInput.value = savedMed.dose;
-                }
-            });
+            calculateAll();
+            alert('기록을 성공적으로 불러왔습니다.');
+        } catch (error) {
+            console.error("Error applying data:", error);
+            alert("데이터를 적용하는 중 오류가 발생했습니다. 파일이 손상되었을 수 있습니다.");
         }
-        
-        document.getElementById('attachDate').value = data.norspanAttachDate;
-        document.getElementById('attachTime').value = data.norspanAttachTime;
-
-
-        calculateAll();
-        updateAllTitles();
-        calculateRemovalDate();
-        alert('기록을 성공적으로 불러왔습니다.');
     }
 
     function saveDataAsJson() {
-        const data = gatherDashboardData();
-        const jsonString = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        const petName = data.petName || '환자';
-        const date = new Date().toISOString().slice(0, 10);
-        link.href = url;
-        link.download = `${date}_${petName}_고양이마취기록.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        try {
+            const data = gatherDashboardData();
+            if (!data) return;
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            const petName = data.petName || '환자';
+            const date = data.visitDate || new Date().toISOString().slice(0, 10);
+            
+            link.href = url;
+            link.download = `${date}_${petName}_고양이마취기록.json`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error in saveDataAsJson:", error);
+            alert("파일을 저장하는 중 오류가 발생했습니다. 개발자 콘솔을 확인해주세요.");
+        }
     }
 
     function handleFileLoad(event) {
@@ -200,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
         reader.readAsText(file);
+        event.target.value = ''; // 동일한 파일을 다시 불러올 수 있도록 초기화
     }
     
     function saveActiveTabAsImage() {
@@ -235,8 +259,12 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (!weightInput.value || isNaN(weight) || weight <= 0) {
             const elementsToClear = ['pre_op_drugs_result_cat', 'nerve_block_result_cat', 'ketamine_cri_result_cat', 'hypotension_protocol_cat', 'cpa_protocol_cat'];
-            elementsToClear.forEach(id => document.getElementById(id).innerHTML = '체중을 입력해주세요.');
-            document.getElementById('bradycardia_protocol_cat').innerHTML = '';
+            elementsToClear.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '체중을 입력해주세요.';
+            });
+            const bradycardiaEl = document.getElementById('bradycardia_protocol_cat');
+            if (bradycardiaEl) bradycardiaEl.innerHTML = '';
             
             if (document.getElementById('weight-input')) {
                 document.getElementById('weight-input').value = '';
@@ -292,7 +320,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('chill_protocol_content').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><div><h4 class="font-bold text-gray-800">1. 사전 처방</h4><p><strong>가바펜틴 100mg 캡슐</strong>을 처방하여, 보호자가 병원 방문 1~2시간 전 가정에서 경구 투여하도록 안내합니다.</p></div><div><h4 class="font-bold text-gray-800">2. 원내 프로토콜</h4><p>가바펜틴을 복용한 환자는 <strong class="text-red-600">마취 전 투약 및 유도제 용량이 자동으로 50% 감량</strong>됩니다.</p></div></div>`;
         }
 
-        const sites = parseInt(document.querySelector('#nerve_block_result_cat select')?.value) || 4;
+        const sitesSelect = document.getElementById('cat_block_sites');
+        const sites = sitesSelect ? parseInt(sitesSelect.value) || 4 : 4;
         const total_vol_needed = Math.min(0.3, Math.max(0.1, 0.08 * weight)) * sites;
         const final_total_ml = Math.min((1.0 * weight / 5 * 1.25), total_vol_needed);
         document.getElementById('nerve_block_result_cat').innerHTML = `<div class="flex items-center gap-4 mb-4"><label for="cat_block_sites" class="font-semibold text-gray-700">마취 부위 수:</label><select id="cat_block_sites" class="select-field" onchange="calculateAll()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select></div><div class="p-2 border rounded-lg bg-gray-50"><h4 class="font-semibold text-gray-800">총 준비 용량 (${sites}군데)</h4><p class="text-xs text-red-600 font-bold">부피바케인 총량 1.0mg/kg 초과 금지!</p><p><span class="result-value">${(final_total_ml*0.8).toFixed(2)}mL</span> (0.5% 부피) + <span class="result-value">${(final_total_ml*0.2).toFixed(2)}mL</span> (2% 리도)</p></div>`;
@@ -316,18 +345,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // --- 퇴원약 탭 기능 ---
     function initializeDischargeTab() {
-        const defaultMeds = {
-            '7day': ['clindamycin', 'gabapentin', 'famotidine', 'almagel'],
-            '3day': ['vetrocam', 'misoprostol', 'tramadol']
-        };
-        defaultMeds['7day'].forEach(drug => document.querySelector(`#dischargeTab tr[data-drug="${drug}"] .med-checkbox`)?.setAttribute('checked', 'true'));
-        defaultMeds['3day'].forEach(drug => {
-            const row = document.querySelector(`#dischargeTab tr[data-drug="${drug}"]`);
-            if(row) {
-                row.querySelector('.med-checkbox').checked = true;
-                row.querySelector('.days').value = 3;
-            }
-        });
         const dischargeInputs = document.querySelectorAll('#dischargeTab .med-checkbox, #dischargeTab .days, #dischargeTab .dose');
         dischargeInputs.forEach(input => {
             input.addEventListener('change', calculateDischargeMeds);
@@ -354,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (row.dataset.special === 'vetrocam') {
                 dailyMultiplier = 1;
-                const totalAmount = (weight * 0.2) + (weight * 0.1 * (days - 1));
+                const totalAmount = (days > 0) ? (weight * 0.2) + (weight * 0.1 * (days - 1)) : 0;
                 totalAmountText = `${totalAmount.toFixed(2)} ${unit}`;
             } else if (row.dataset.special === 'same') {
                 dailyMultiplier = 1;
@@ -364,11 +381,11 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const dose = parseFloat(row.querySelector('.dose').value);
                 const strength = parseFloat(row.dataset.strength);
-                if (strength > 0) {
-                    if (['udca', 'silymarin', 'itraconazole'].includes(row.dataset.drug)) dailyMultiplier = 2;
+                if (!isNaN(dose) && !isNaN(strength) && strength > 0) {
+                    if (!['udca', 'silymarin', 'itraconazole'].includes(row.dataset.drug)) dailyMultiplier = 2;
                     totalAmountText = `${((weight * dose * dailyMultiplier * days) / strength).toFixed(1)} ${unit}`;
                 } else {
-                    totalAmountText = "함량 필요";
+                    totalAmountText = "용량/함량 오류";
                 }
             }
             
@@ -475,6 +492,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const weightInput = document.getElementById('weight-input');
         const resultContainerWeight = document.getElementById('result-container-weight');
         const resultTextWeight = document.getElementById('result-text-weight');
+        if(!weightInput || !resultContainerWeight || !resultTextWeight) return;
+        
         const weight = parseFloat(weightInput.value);
         if (isNaN(weight) || weight <= 0) { resultContainerWeight.classList.add('hidden'); return; }
         let recommendedSize = '4.5 이상';
@@ -487,6 +506,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const tracheaInput = document.getElementById('trachea-input');
         const resultContainerTrachea = document.getElementById('result-container-trachea');
         const resultTextTrachea = document.getElementById('result-text-trachea');
+         if(!tracheaInput || !resultContainerTrachea || !resultTextTrachea) return;
+
         const diameter = parseFloat(tracheaInput.value);
         if (isNaN(diameter) || diameter <= 0) { resultContainerTrachea.classList.add('hidden'); return; }
         let recommendedId = '4.5 이상';
@@ -522,4 +543,4 @@ document.addEventListener('DOMContentLoaded', function () {
             displayDiv.innerHTML = '<p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. \'ET Tube\' 탭에서 기록해주세요.</p>';
         }
     }
-});```
+});
