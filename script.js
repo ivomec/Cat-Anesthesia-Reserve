@@ -11,13 +11,16 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeAll();
 
     function initializeAll() {
-        // 이벤트 리스너 바인딩
-        document.getElementById('globalPetName').addEventListener('input', updateAllTitles);
-        document.getElementById('weight').addEventListener('input', calculateAll);
-        document.getElementById('patient_status').addEventListener('change', calculateAll);
-        document.getElementById('renal_status').addEventListener('change', calculateAll);
-        document.getElementById('chill_protocol').addEventListener('change', calculateAll);
-        document.getElementById('saveTabBtn').addEventListener('click', saveActiveTabAsImage);
+        // 전역 이벤트 리스너 바인딩
+        const globalInputs = ['globalPetName', 'weight', 'visitDate', 'patient_status', 'renal_status', 'chill_protocol', 'liverIssue', 'kidneyIssue'];
+        globalInputs.forEach(id => document.getElementById(id)?.addEventListener('input', calculateAll));
+        globalInputs.forEach(id => document.getElementById(id)?.addEventListener('change', calculateAll));
+        
+        // 기능 버튼 이벤트 리스너
+        document.getElementById('saveJsonBtn').addEventListener('click', saveDataAsJson);
+        document.getElementById('loadJsonBtn').addEventListener('click', () => document.getElementById('json-file-input').click());
+        document.getElementById('json-file-input').addEventListener('change', handleFileLoad);
+        document.getElementById('saveImageBtn').addEventListener('click', saveActiveTabAsImage);
         
         // ET Tube 탭
         document.getElementById('weight-input').addEventListener('input', calculateWeightSize);
@@ -45,6 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // 구내염 탭 차트 생성
         createStomatitisChart();
 
+        // 퇴원약 탭 초기화
+        initializeDischargeTab();
+        
+        // 오늘 날짜로 방문날짜 초기화
+        document.getElementById('visitDate').valueAsDate = new Date();
+
         // 초기 계산 실행
         calculateAll();
     }
@@ -71,10 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function hasFinalConsonant(name) {
         if (!name) return false;
         const lastChar = name.charCodeAt(name.length - 1);
-        if (lastChar >= 0xAC00 && lastChar <= 0xD7A3) {
-            return (lastChar - 0xAC00) % 28 !== 0;
-        }
-        return false;
+        return (lastChar >= 0xAC00 && lastChar <= 0xD7A3) ? (lastChar - 0xAC00) % 28 !== 0 : false;
     }
 
     function updateAllTitles() {
@@ -82,37 +88,123 @@ document.addEventListener('DOMContentLoaded', function () {
         const hasJongseong = hasFinalConsonant(name);
         const nameOrDefault = name || "아이";
 
-        // 1. Stomatitis Title
-        const stomatitisTitle = document.getElementById('stomatitisTitle');
-        if (stomatitisTitle) {
-            stomatitisTitle.innerHTML = `우리 ${nameOrDefault}${hasJongseong ? "이를" : "를"} 위한<br>만성 구내염 및 전발치 안내서`;
-        }
+        const titles = {
+            stomatitisTitle: `우리 ${nameOrDefault}${hasJongseong ? "이를" : "를"} 위한<br>만성 구내염 및 전발치 안내서`,
+            cyclosporineTitle: `✨ ${nameOrDefault}${hasJongseong ? '이의' : '의'} 사이클로스포린 복약 안내문 ✨`,
+            norspanTitle: `${nameOrDefault}${hasJongseong ? '이를' : '를'} 위한 통증 관리 패치 안내문`,
+            gabapentinTitle: `<span>${nameOrDefault}</span><span>${hasJongseong ? '을' : '를'}</span> 위한 편안한 진료 준비 안내서`
+        };
 
-        // 2. Cyclosporine Title
-        const cyclosporineTitle = document.getElementById('cyclosporineTitle');
-        if (cyclosporineTitle) {
-            cyclosporineTitle.innerHTML = `✨ ${nameOrDefault}${hasJongseong ? '이의' : '의'} 사이클로스포린 복약 안내문 ✨`;
-        }
-
-        // 3. Norspan Title
-        const norspanTitle = document.getElementById('norspanTitle');
-        if (norspanTitle) {
-            norspanTitle.innerText = `${nameOrDefault}${hasJongseong ? '이를' : '를'} 위한 통증 관리 패치 안내문`;
-        }
-        
-        // 4. Gabapentin Title
-        const gabapentinTitle = document.getElementById('gabapentinTitle');
-        if (gabapentinTitle) {
-            const subjectParticle = hasJongseong ? '을' : '를';
-            gabapentinTitle.innerHTML = `<span>${nameOrDefault}</span><span>${subjectParticle}</span> 위한 편안한 진료 준비 안내서`;
+        for (const id in titles) {
+            const element = document.getElementById(id);
+            if (element) element.innerHTML = titles[id];
         }
     }
 
-    // --- 이미지 저장 ---
+    // --- 데이터 저장/불러오기/이미지 기능 ---
+    function gatherDashboardData() {
+        const dischargeMeds = [];
+        document.querySelectorAll('#dischargeTab .med-table tbody tr').forEach(row => {
+            const doseInput = row.querySelector('.dose');
+            dischargeMeds.push({
+                drug: row.dataset.drug,
+                selected: row.querySelector('.med-checkbox').checked,
+                days: row.querySelector('.days').value,
+                dose: doseInput ? doseInput.value : null
+            });
+        });
+
+        return {
+            visitDate: document.getElementById('visitDate').value,
+            petName: document.getElementById('globalPetName').value,
+            weight: document.getElementById('weight').value,
+            patientStatus: document.getElementById('patient_status').value,
+            renalStatus: document.getElementById('renal_status').value,
+            chillProtocol: document.getElementById('chill_protocol').value,
+            liverIssue: document.getElementById('liverIssue').checked,
+            kidneyIssue: document.getElementById('kidneyIssue').checked,
+            etTubeInfo: selectedCatTubeInfo,
+            dischargeMeds: dischargeMeds,
+            etTubeNotes: document.getElementById('cat_selectedEtTubeNotes').value,
+            norspanAttachDate: document.getElementById('attachDate').value,
+            norspanAttachTime: document.getElementById('attachTime').value
+        };
+    }
+
+    function applyDashboardData(data) {
+        if (!data) return;
+        document.getElementById('visitDate').value = data.visitDate;
+        document.getElementById('globalPetName').value = data.petName;
+        document.getElementById('weight').value = data.weight;
+        document.getElementById('patient_status').value = data.patientStatus;
+        document.getElementById('renal_status').value = data.renalStatus;
+        document.getElementById('chill_protocol').value = data.chillProtocol;
+        document.getElementById('liverIssue').checked = data.liverIssue;
+        document.getElementById('kidneyIssue').checked = data.kidneyIssue;
+
+        selectedCatTubeInfo = data.etTubeInfo || { size: null, cuff: false, notes: '' };
+        document.getElementById('cat_selectedEtTubeSize').value = selectedCatTubeInfo.size;
+        document.getElementById('cat_selectedEtTubeCuff').checked = selectedCatTubeInfo.cuff;
+        document.getElementById('cat_selectedEtTubeNotes').value = data.etTubeNotes || '';
+
+
+        if (data.dischargeMeds) {
+            data.dischargeMeds.forEach(savedMed => {
+                const row = document.querySelector(`#dischargeTab tr[data-drug="${savedMed.drug}"]`);
+                if (row) {
+                    row.querySelector('.med-checkbox').checked = savedMed.selected;
+                    row.querySelector('.days').value = savedMed.days;
+                    const doseInput = row.querySelector('.dose');
+                    if (doseInput) doseInput.value = savedMed.dose;
+                }
+            });
+        }
+        
+        document.getElementById('attachDate').value = data.norspanAttachDate;
+        document.getElementById('attachTime').value = data.norspanAttachTime;
+
+
+        calculateAll();
+        updateAllTitles();
+        calculateRemovalDate();
+        alert('기록을 성공적으로 불러왔습니다.');
+    }
+
+    function saveDataAsJson() {
+        const data = gatherDashboardData();
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const petName = data.petName || '환자';
+        const date = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = `${date}_${petName}_고양이마취기록.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function handleFileLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                applyDashboardData(data);
+            } catch (error) {
+                alert('오류: 유효하지 않은 JSON 파일입니다.');
+                console.error("JSON 파싱 오류:", error);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
     function saveActiveTabAsImage() {
         const activeTab = document.querySelector('.tab-content.active');
         if (!activeTab) return;
-
         const petName = document.getElementById('globalPetName').value.trim() || '환자';
         const tabId = activeTab.id || 'current_tab';
         const fileName = `${petName}_${tabId}_안내문.png`;
@@ -132,47 +224,44 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // --- 계산기 및 프로토콜 ---
+    // --- 메인 계산기 및 프로토콜 ---
     function calculateAll() {
+        document.getElementById('kidneyIssue').checked = (document.getElementById('renal_status').value === 'renal');
+        
+        updateAllTitles();
         updateCatTubeDisplay();
         const weightInput = document.getElementById('weight');
         const weight = parseFloat(weightInput.value);
         
-        // 체중이 입력되지 않으면 일부 기능 비활성화
         if (!weightInput.value || isNaN(weight) || weight <= 0) {
-             const weightInputTube = document.getElementById('weight-input');
-            if (weightInputTube) {
-                weightInputTube.value = '';
+            const elementsToClear = ['pre_op_drugs_result_cat', 'nerve_block_result_cat', 'ketamine_cri_result_cat', 'hypotension_protocol_cat', 'cpa_protocol_cat'];
+            elementsToClear.forEach(id => document.getElementById(id).innerHTML = '체중을 입력해주세요.');
+            document.getElementById('bradycardia_protocol_cat').innerHTML = '';
+            
+            if (document.getElementById('weight-input')) {
+                document.getElementById('weight-input').value = '';
                 calculateWeightSize();
             }
-            // 입력값이 없을 때 계산결과 초기화
-            document.getElementById('pre_op_drugs_result_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('nerve_block_result_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('ketamine_cri_result_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('hypotension_protocol_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('bradycardia_protocol_cat').innerHTML = '';
-            document.getElementById('cpa_protocol_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('discharge_cat').innerHTML = '체중을 입력해주세요.';
-            document.getElementById('petWeightCyclo').value = '';
-            calculateCycloDose();
+            if (document.getElementById('petWeightCyclo')) {
+                document.getElementById('petWeightCyclo').value = '';
+                calculateCycloDose();
+            }
+            calculateDischargeMeds(); 
             return;
         }
         
-        const weightInputTube = document.getElementById('weight-input');
-        if(weightInputTube) {
-            weightInputTube.value = weight;
+        if(document.getElementById('weight-input')) {
+            document.getElementById('weight-input').value = weight;
             calculateWeightSize();
         }
-        
-        const cycloWeightInput = document.getElementById('petWeightCyclo');
-        if(cycloWeightInput) {
-            cycloWeightInput.value = weight;
+        if(document.getElementById('petWeightCyclo')) {
+            document.getElementById('petWeightCyclo').value = weight;
             calculateCycloDose();
         }
         
         populatePrepTab(weight);
         populateEmergencyTab(weight);
-        populateDischargeTab(weight);
+        calculateDischargeMeds();
     }
 
     function populatePrepTab(weight) {
@@ -186,43 +275,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const ketaLoadMl = (0.5 * weight) / concentrations_cat.ketamine_diluted;
         const alfaxanMlMin = (1 * weight * inductionFactor) / concentrations_cat.alfaxalone;
         const alfaxanMlMax = (2 * weight * inductionFactor) / concentrations_cat.alfaxalone;
-        const pumpCorrectionFactor = 0.7;
         const fluidRate = status === 'healthy' ? 3 : 1.5;
         const fluidTarget = fluidRate * weight;
-        const fluidCorrected = fluidTarget / pumpCorrectionFactor;
         
-        let patchRecommendation = "";
-        if (weight <= 3.0) { patchRecommendation = "5 mcg/h 1매"; } 
-        else if (weight <= 6.0) { patchRecommendation = "10 mcg/h 1매"; } 
-        else { patchRecommendation = "20 mcg/h 1매"; }
-
-        const norepiRate = (((weight * 0.1 * 60) / 1000) / (0.3 * 1 / 30));
-        const epiLowMl = (0.01 * weight) / (concentrations_cat.epinephrine / 10);
-        const atropineCpaMl = (0.04 * weight) / concentrations_cat.atropine;
+        let patchRecommendation = (weight <= 3.0) ? "5 mcg/h 1매" : (weight <= 6.0) ? "10 mcg/h 1매" : "20 mcg/h 1매";
 
         document.getElementById('pre_op_drugs_result_cat').innerHTML = `
             <div class="p-3 bg-blue-50 rounded-lg"><h4 class="font-bold text-blue-800">마취 전 투약</h4><p><span class="result-value">${butorMl.toFixed(2)} mL</span> 부토르파놀</p><p><span class="result-value">${midaMl.toFixed(2)} mL</span> 미다졸람</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
             <div class="p-3 bg-amber-50 rounded-lg"><h4 class="font-bold text-amber-800">케타민 부하</h4><p><span class="result-value">${ketaLoadMl.toFixed(2)} mL</span> (희석액)</p><p class="text-xs text-gray-600 font-semibold mt-1">※ 희석: 케타민 0.1mL + N/S 0.9mL</p></div>
             <div class="p-3 bg-indigo-50 rounded-lg"><h4 class="font-bold text-indigo-800">마취 유도제</h4><p><span class="result-value">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span> 알팍산</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
-            <div class="p-3 bg-cyan-50 rounded-lg"><h4 class="font-bold text-cyan-800">수액 펌프</h4><p><span class="result-value">${fluidCorrected.toFixed(1)} mL/hr</span></p><p class="text-xs text-gray-500 mt-1">(목표: ${fluidTarget.toFixed(1)}mL/hr)</p></div>
-            <div class="p-3 bg-fuchsia-50 rounded-lg"><h4 class="font-bold text-fuchsia-800">노스판 패치</h4><p class="result-value">${patchRecommendation}</p></div>
-            <div class="p-3 bg-red-50 rounded-lg col-span-full md:col-span-1"><h4 class="font-bold text-red-800">응급 약물 준비</h4>
-                <p class="text-xs text-left">노르에피(CRI희석액): <span class="result-value">${(norepiRate / 60).toFixed(2)} mL</span>/min</p>
-                <p class="text-xs text-left">에피(저용량,희석액): <span class="result-value">${epiLowMl.toFixed(2)} mL</span></p>
-                <p class="text-xs text-left">아트로핀: <span class="result-value">${atropineCpaMl.toFixed(2)} mL</span></p>
-            </div>`;
+            <div class="p-3 bg-cyan-50 rounded-lg"><h4 class="font-bold text-cyan-800">수액 속도</h4><p><span class="result-value">${fluidTarget.toFixed(1)} mL/hr</span></p></div>
+            <div class="p-3 bg-fuchsia-50 rounded-lg"><h4 class="font-bold text-fuchsia-800">노스판 패치</h4><p class="result-value">${patchRecommendation}</p></div>`;
 
-        const chillCard = document.getElementById('chill_protocol_info_card');
+        document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
         if (isChill) {
-            chillCard.style.display = 'block';
             document.getElementById('chill_protocol_content').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><div><h4 class="font-bold text-gray-800">1. 사전 처방</h4><p><strong>가바펜틴 100mg 캡슐</strong>을 처방하여, 보호자가 병원 방문 1~2시간 전 가정에서 경구 투여하도록 안내합니다.</p></div><div><h4 class="font-bold text-gray-800">2. 원내 프로토콜</h4><p>가바펜틴을 복용한 환자는 <strong class="text-red-600">마취 전 투약 및 유도제 용량이 자동으로 50% 감량</strong>됩니다.</p></div></div>`;
-        } else {
-            chillCard.style.display = 'none';
         }
 
-        const sites = parseInt(document.getElementById('cat_block_sites')?.value) || 4;
-        let vol_per_site = Math.min(0.3, Math.max(0.1, 0.08 * weight));
-        let total_vol_needed = vol_per_site * sites;
+        const sites = parseInt(document.querySelector('#nerve_block_result_cat select')?.value) || 4;
+        const total_vol_needed = Math.min(0.3, Math.max(0.1, 0.08 * weight)) * sites;
         const final_total_ml = Math.min((1.0 * weight / 5 * 1.25), total_vol_needed);
         document.getElementById('nerve_block_result_cat').innerHTML = `<div class="flex items-center gap-4 mb-4"><label for="cat_block_sites" class="font-semibold text-gray-700">마취 부위 수:</label><select id="cat_block_sites" class="select-field" onchange="calculateAll()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select></div><div class="p-2 border rounded-lg bg-gray-50"><h4 class="font-semibold text-gray-800">총 준비 용량 (${sites}군데)</h4><p class="text-xs text-red-600 font-bold">부피바케인 총량 1.0mg/kg 초과 금지!</p><p><span class="result-value">${(final_total_ml*0.8).toFixed(2)}mL</span> (0.5% 부피) + <span class="result-value">${(final_total_ml*0.2).toFixed(2)}mL</span> (2% 리도)</p></div>`;
         if (document.getElementById('cat_block_sites')) document.getElementById('cat_block_sites').value = sites;
@@ -234,8 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function populateEmergencyTab(weight) {
-        const norepiDose = 0.1;
-        const norepiRate = (((weight * norepiDose * 60) / 1000) / (0.3 * 1 / 30));
+        const norepiRate = (((weight * 0.1 * 60) / 1000) / (0.3 * 1 / 30));
         document.getElementById('hypotension_protocol_cat').innerHTML = `<h4 class="font-bold text-lg text-red-800">저혈압 (SBP < 90)</h4><ol class="list-decimal list-inside mt-2 space-y-2 text-sm"><li>호흡 마취제 농도 감소</li><li><span class="text-red-600 font-bold">수액 볼루스 절대 금기!</span> 승압제 사용.</li></ol><div class="mt-2 p-2 rounded-lg bg-red-100"><h5 class="font-semibold text-center text-sm">노르에피네프린 CRI (1차)</h5><p class="text-xs text-center mb-1">희석: 원액 0.3mL + N/S 29.7mL</p><p class="text-center font-bold text-red-700 text-lg">${norepiRate.toFixed(2)} mL/hr <span class="text-sm font-normal">(0.1 mcg/kg/min)</span></p></div>`;
         document.getElementById('bradycardia_protocol_cat').innerHTML = `<h4 class="font-bold text-lg text-red-800 mt-4">서맥 (Bradycardia)</h4><div class="mt-2 p-2 rounded-lg bg-red-100"><p class="text-center text-red-700 font-bold">아트로핀 금기 (HCM 의심)</p><p class="text-center text-xs text-gray-600">마취 심도 조절 및 원인 교정 우선</p></div>`;
         const epiLowMl = (0.01 * weight) / (concentrations_cat.epinephrine / 10);
@@ -243,23 +313,112 @@ document.addEventListener('DOMContentLoaded', function () {
         const atropineCpaMl = (0.04 * weight) / concentrations_cat.atropine;
         document.getElementById('cpa_protocol_cat').innerHTML = `<div class="info-box mb-2 text-xs"><p><strong>핵심 개념:</strong> BLS는 '엔진'을 계속 돌려주는 역할이고, ALS는 '엔진을 수리'하는 역할입니다. 고품질의 BLS 없이는 ALS가 성공할 수 없습니다.</p></div><h4 class="font-bold text-md text-gray-800 mt-3">1. BLS (기본소생술)</h4><ul class="list-disc list-inside text-sm space-y-1 mt-1"><li><strong>순환:</strong> 분당 100-120회 속도로 흉곽 1/3 깊이 압박 (2분마다 교대)</li><li><strong>기도확보:</strong> 즉시 기관 삽관</li><li><strong>호흡:</strong> 6초에 1회 인공 환기 (과환기 금지)</li></ul><h4 class="font-bold text-md text-gray-800 mt-3">2. ALS (전문소생술)</h4><div class="mt-2 p-2 rounded-lg bg-red-100 space-y-2"><h5 class="font-semibold text-sm">에피네프린 (Low dose)</h5><p class="text-xs text-center mb-1 font-semibold">희석: 원액 0.1mL + N/S 0.9mL</p><p class="text-center font-bold text-red-700">${epiLowMl.toFixed(2)} mL (희석액) IV</p><hr><h5 class="font-semibold text-sm">바소프레신 (대체 가능)</h5><p class="text-center font-bold text-red-700">${vasoMl.toFixed(2)} mL IV</p><hr><h5 class="font-semibold text-sm">아트로핀 (Vagal arrest 의심 시)</h5><p class="text-center font-bold text-red-700">${atropineCpaMl.toFixed(2)} mL IV</p></div>`;
     }
+    
+    // --- 퇴원약 탭 기능 ---
+    function initializeDischargeTab() {
+        const defaultMeds = {
+            '7day': ['clindamycin', 'gabapentin', 'famotidine', 'almagel'],
+            '3day': ['vetrocam', 'misoprostol', 'tramadol']
+        };
+        defaultMeds['7day'].forEach(drug => document.querySelector(`#dischargeTab tr[data-drug="${drug}"] .med-checkbox`)?.setAttribute('checked', 'true'));
+        defaultMeds['3day'].forEach(drug => {
+            const row = document.querySelector(`#dischargeTab tr[data-drug="${drug}"]`);
+            if(row) {
+                row.querySelector('.med-checkbox').checked = true;
+                row.querySelector('.days').value = 3;
+            }
+        });
+        const dischargeInputs = document.querySelectorAll('#dischargeTab .med-checkbox, #dischargeTab .days, #dischargeTab .dose');
+        dischargeInputs.forEach(input => {
+            input.addEventListener('change', calculateDischargeMeds);
+            input.addEventListener('keyup', calculateDischargeMeds);
+        });
+    }
 
-    function populateDischargeTab(weight) {
-        const renalStatus = document.getElementById('renal_status').value;
-        const generalDays = parseInt(document.getElementById('prescription_days_cat')?.value) || 7;
-        const getPillCount = (mgPerDose, frequency, pillStrength, days) => { if (days <= 0) return "일수 입력"; const pillsPerDose = mgPerDose / pillStrength; const totalPills = Math.ceil(pillsPerDose * frequency * days * 2) / 2; return `<strong>${totalPills.toFixed(1).replace('.0','')}정</strong> (${pillStrength}mg/정) | 1회 ${pillsPerDose.toFixed(2)}정, ${frequency}회/일`; };
-        let content = '';
-        if (renalStatus === 'healthy') {
-            const vetrocamDays = parseInt(document.getElementById('vetrocam_days_cat')?.value) || 3;
-            let totalVetrocamDoseMl = 0;
-            if (vetrocamDays >= 1) { totalVetrocamDoseMl += (0.1 * weight) / concentrations_cat.meloxicam_oral; if (vetrocamDays > 1) totalVetrocamDoseMl += (vetrocamDays - 1) * ((0.05 * weight) / concentrations_cat.meloxicam_oral); }
-            const gabapentinDoseA = parseFloat(document.getElementById('gabapentin_dose_cat_a')?.value) || 5;
-            content = `<div id="discharge_gold_cat"><h3 class="font-bold text-lg text-green-700 mb-2">시나리오 1: 종합 처방 (신기능 정상)</h3><div class="p-4 bg-green-50 rounded-lg space-y-2"><div><label class="font-semibold text-sm">베트로캄 처방일: <input type="number" id="vetrocam_days_cat" value="${vetrocamDays}" class="w-16 p-0.5 border rounded text-center" oninput="calculateAll()"></label></div><p><strong>베트로캄(액상, 1일 1회):</strong> 총 <span class="result-value">${totalVetrocamDoseMl.toFixed(2)} mL</span></p><hr><div><label class="font-semibold text-sm">가바펜틴 용량(mg/kg): <input type="number" id="gabapentin_dose_cat_a" value="${gabapentinDoseA}" class="w-16 p-0.5 border rounded text-center" oninput="calculateAll()"></label></div><div class="text-sm p-1 bg-green-100 rounded">${getPillCount(gabapentinDoseA * weight, 2, pillStrengths_cat.gabapentin, generalDays)}</div><hr><p class="font-semibold text-sm">항생제/위장보호제는 동일</p></div></div>`;
-        } else {
-             const gabapentinDoseB = parseFloat(document.getElementById('gabapentin_dose_cat_b')?.value) || 10;
-             content = `<div id="discharge_alt_cat"><h3 class="font-bold text-lg text-orange-700 mb-2">시나리오 2: NSAID 제외 처방 (신기능 저하)</h3><div class="info-box mb-2 text-xs"><p class="font-bold text-red-600">NSAIDs 절대 금기!</p></div><div class="p-4 bg-orange-50 rounded-lg space-y-2"><div><label class="font-semibold text-sm">가바펜틴 용량(mg/kg): <input type="number" id="gabapentin_dose_cat_b" value="${gabapentinDoseB}" class="w-16 p-0.5 border rounded text-center" oninput="calculateAll()"></label></div><div class="text-sm p-1 bg-orange-100 rounded">${getPillCount(gabapentinDoseB * weight, 2, pillStrengths_cat.gabapentin, generalDays)}</div><hr><p class="font-semibold text-sm">항생제/위장보호제는 동일</p></div></div>`;
+    function calculateDischargeMeds() {
+        const weight = parseFloat(document.getElementById('weight').value);
+        if (isNaN(weight) || weight <= 0) {
+             document.getElementById('summary').innerHTML = '<p>상단의 환자 체중을 입력해주세요.</p>';
+             document.querySelectorAll('#dischargeTab .total-amount').forEach(el => el.textContent = '');
+             return;
         }
-        document.getElementById('discharge_cat').innerHTML = content;
+
+        const summaryData = {};
+        document.querySelectorAll('#dischargeTab .med-checkbox:checked').forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const drugName = row.cells[1].textContent;
+            const days = parseInt(row.querySelector('.days').value);
+            const unit = row.dataset.unit;
+            let totalAmountText = '';
+            let dailyMultiplier = 2;
+
+            if (row.dataset.special === 'vetrocam') {
+                dailyMultiplier = 1;
+                const totalAmount = (weight * 0.2) + (weight * 0.1 * (days - 1));
+                totalAmountText = `${totalAmount.toFixed(2)} ${unit}`;
+            } else if (row.dataset.special === 'same') {
+                dailyMultiplier = 1;
+                totalAmountText = `${((weight / 2.5) * 0.25 * days).toFixed(1)} ${unit}`;
+            } else if (row.dataset.special === 'paramel') {
+                totalAmountText = `${(weight * 0.75 * 2 * days).toFixed(1)} ${unit}`;
+            } else {
+                const dose = parseFloat(row.querySelector('.dose').value);
+                const strength = parseFloat(row.dataset.strength);
+                if (strength > 0) {
+                    if (['udca', 'silymarin', 'itraconazole'].includes(row.dataset.drug)) dailyMultiplier = 2;
+                    totalAmountText = `${((weight * dose * dailyMultiplier * days) / strength).toFixed(1)} ${unit}`;
+                } else {
+                    totalAmountText = "함량 필요";
+                }
+            }
+            
+            row.querySelector('.total-amount').textContent = totalAmountText;
+
+            if (!summaryData[days]) summaryData[days] = [];
+            let summaryText = `${drugName.split(' (')[0]} ${totalAmountText}${dailyMultiplier === 1 ? ' (1일 1회)' : ''}`;
+            const isLiverDanger = row.querySelector('.notes[data-liver="true"]') && document.getElementById('liverIssue').checked;
+            const isKidneyDanger = row.querySelector('.notes[data-kidney="true"]') && document.getElementById('kidneyIssue').checked;
+
+            summaryData[days].push({ text: summaryText, isDanger: isLiverDanger || isKidneyDanger });
+        });
+
+        updateSummaryUI(summaryData);
+        updateDischargeWarnings();
+    }
+
+    function updateSummaryUI(summaryData) {
+        const summaryContainer = document.getElementById('summary');
+        summaryContainer.innerHTML = '';
+        const sortedDays = Object.keys(summaryData).sort((a, b) => a - b);
+
+        if (sortedDays.length === 0) {
+            summaryContainer.innerHTML = '<p>조제할 약물을 선택해주세요.</p>';
+            return;
+        }
+
+        sortedDays.forEach(day => {
+            const box = document.createElement('div');
+            box.className = 'summary-box';
+            box.innerHTML = `<h3>${day}일 처방</h3>`;
+            summaryData[day].forEach(item => {
+                const p = document.createElement('p');
+                p.className = 'summary-item';
+                p.innerHTML = item.isDanger ? `<span class="danger">${item.text}</span>` : item.text;
+                box.appendChild(p);
+            });
+            summaryContainer.appendChild(box);
+        });
+    }
+
+    function updateDischargeWarnings() {
+        const liverIssue = document.getElementById('liverIssue').checked;
+        const kidneyIssue = document.getElementById('kidneyIssue').checked;
+        document.querySelectorAll('#dischargeTab .notes').forEach(noteCell => {
+            noteCell.classList.remove('highlight-warning');
+            if ((liverIssue && noteCell.dataset.liver) || (kidneyIssue && noteCell.dataset.kidney)) {
+                noteCell.classList.add('highlight-warning');
+            }
+        });
     }
 
     // --- 구내염 탭 차트 ---
@@ -270,31 +429,17 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'doughnut',
             data: {
                 labels: ['완전한 회복', '현저한 개선', '부분적 개선'],
-                datasets: [{
-                    label: '전발치 후 예후',
-                    data: [60, 25, 15],
-                    backgroundColor: ['rgba(52, 211, 153, 0.8)','rgba(251, 191, 36, 0.8)','rgba(239, 68, 68, 0.8)'],
-                    borderColor: ['#10b981','#f59e0b','#ef4444'],
-                    borderWidth: 2,
-                    hoverOffset: 10
-                }]
+                datasets: [{ data: [60, 25, 15], backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], borderWidth: 2 }]
             },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { padding: 20 } } }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 20 } } } }
         });
     }
 
     // --- 사이클로스포린 탭 계산기 ---
     function calculateCycloDose(){
-         const doseResultDiv = document.getElementById('doseResultCyclo');
-         const weightInput = document.getElementById('petWeightCyclo');
-         const durationInput = document.getElementById('durationCyclo');
-         
-         const weight = parseFloat(weightInput.value);
-         const duration = parseInt(durationInput.value);
-
+        const doseResultDiv = document.getElementById('doseResultCyclo');
+        const weight = parseFloat(document.getElementById('petWeightCyclo').value);
+        const duration = parseInt(document.getElementById('durationCyclo').value);
         if (isNaN(weight) || weight <= 0) {
             doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 몸무게와 복용 기간을 입력하시면 자동으로 계산됩니다.</p>';
             return;
@@ -302,19 +447,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const doseInMl = (weight * 5) / 100;
         let htmlContent = `<p class="text-lg"><strong><i class="fa-solid fa-syringe"></i> 1일 권장 정량 (${weight}kg 기준)</strong></p><p class="text-4xl font-black my-2 text-indigo-600">${doseInMl.toFixed(2)} mL</p><p class="text-sm text-gray-700">(사이클로스포린 ${(weight * 5).toFixed(1)} mg에 해당)</p>`;
         if (!isNaN(duration) && duration > 0) {
-            const totalVolume = doseInMl * duration;
-            htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200"><p class="text-lg"><strong><i class="fa-solid fa-calendar-check"></i> 총 필요 용량 (${duration}일 기준)</strong></p><p class="text-4xl font-black my-2 text-green-600">${totalVolume.toFixed(2)} mL</p></div>`;
+            htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200"><p class="text-lg"><strong><i class="fa-solid fa-calendar-check"></i> 총 필요 용량 (${duration}일 기준)</strong></p><p class="text-4xl font-black my-2 text-green-600">${(doseInMl * duration).toFixed(2)} mL</p></div>`;
         }
         doseResultDiv.innerHTML = htmlContent;
     }
 
     // --- 노스판 탭 날짜 계산 ---
     function calculateRemovalDate() {
-        const dateInput = document.getElementById('attachDate').value;
-        const timeInput = document.getElementById('attachTime').value;
+        const dateInput = document.getElementById('attachDate');
+        const timeInput = document.getElementById('attachTime');
         const removalInfoDiv = document.getElementById('removalInfo');
-        if (!dateInput || !timeInput || !removalInfoDiv) { if(removalInfoDiv) removalInfoDiv.innerHTML = '<p class="font-bold text-yellow-900">날짜와 시간을 입력해주세요.</p>'; return; }
-        const attachDateTime = new Date(`${dateInput}T${timeInput}`);
+        if(!dateInput || !timeInput || !removalInfoDiv) return;
+        if (!dateInput.value || !timeInput.value) { removalInfoDiv.innerHTML = '<p class="font-bold text-yellow-900">날짜와 시간을 입력해주세요.</p>'; return; }
+        const attachDateTime = new Date(`${dateInput.value}T${timeInput.value}`);
         if (isNaN(attachDateTime.getTime())) { removalInfoDiv.innerHTML = '<p class="font-bold text-red-700">유효한 날짜와 시간을 입력해주세요.</p>'; return; }
         const removalDateStart = new Date(attachDateTime.getTime() + 72 * 3600 * 1000);
         const removalDateEnd = new Date(attachDateTime.getTime() + 96 * 3600 * 1000);
