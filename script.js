@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('petWeightMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
         document.querySelectorAll('input[name="mirtazapine_dose_option"]').forEach(radio => radio.addEventListener('change', calculateMirtazapineDose));
 
-
         // 노스판 탭
         const attachDateEl = document.getElementById('attachDate');
         const attachTimeEl = document.getElementById('attachTime');
@@ -518,7 +517,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
     }
-
 
     // --- 노스판 탭 날짜 계산 ---
     function calculateRemovalDate() {
