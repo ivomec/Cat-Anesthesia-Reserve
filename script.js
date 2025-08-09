@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 머타자핀 탭
         document.getElementById('petWeightMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
-        document.getElementById('healthStatusMirtazapine')?.addEventListener('change', calculateMirtazapineDose);
+        document.getElementById('targetDoseMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
 
         // 노스판 탭
         const attachDateEl = document.getElementById('attachDate');
@@ -481,60 +481,33 @@ document.addEventListener('DOMContentLoaded', function () {
         doseResultDiv.innerHTML = htmlContent;
     }
     
-    // --- 머타자핀 탭 계산기 (용액 기준 수정) ---
+    // --- 머타자핀 탭 계산기 (스태프용 수정) ---
     function calculateMirtazapineDose() {
         const doseResultDiv = document.getElementById('doseResultMirtazapine');
         const weight = parseFloat(document.getElementById('petWeightMirtazapine').value);
-        const status = document.getElementById('healthStatusMirtazapine').value;
+        const targetDoseMgKg = parseFloat(document.getElementById('targetDoseMirtazapine').value);
 
-        if (isNaN(weight) || weight <= 0) {
-            doseResultDiv.innerHTML = `
-                <p class="text-gray-700 text-center mb-4">👆 상단의 체중과 환자 상태를 선택하시면 권장 용량이 계산됩니다.</p>
-                <div class="blur-sm">${generateMirtazapineHtmlContent(4, 'healthy')}</div>
-            `;
+        if (isNaN(weight) || weight <= 0 || isNaN(targetDoseMgKg) || targetDoseMgKg <= 0) {
+            doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 체중과 목표 용량(mg/kg)을 입력하시면 투여량이 자동 계산됩니다.</p>';
             return;
         }
+
+        const tabletMg = 15;
+        const waterMl = 8;
+        const suspensionConcentration = tabletMg / waterMl; // 1.875 mg/mL
+
+        const totalDoseMg = weight * targetDoseMgKg;
+        const finalVolumeMl = totalDoseMg / suspensionConcentration;
         
-        doseResultDiv.innerHTML = generateMirtazapineHtmlContent(weight, status);
-    }
-
-    function generateMirtazapineHtmlContent(weight, status) {
-        const frequency = (status === 'healthy') ? "매 24시간 (1일)" : "매 48시간 (2일)";
-        const finalVolumeMl = 1.0;
-        const transdermalDoseMg = 2;
-        const transdermalFrequency = "매 24시간 (1일)";
-
-        return `
-            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 mb-6">
-                <h4 class="font-bold text-lg text-center text-blue-700 mb-2">✅ 최종 투여량 (${weight}kg)</h4>
-                <p class="text-center"><strong class="text-3xl font-bold text-blue-600">${finalVolumeMl.toFixed(2)} mL/cat</strong></p>
-                <p class="text-center mt-2"><strong>투여 간격:</strong> <span class="font-semibold text-red-600">${frequency}</span>마다 1회</p>
-            </div>
-            
-            <div class="mt-6">
-                <h4 class="font-semibold text-gray-800 mb-2">📜 1.875mg/mL 용액 조제법 (보호자 안내용)</h4>
-                <ol class="list-decimal list-inside space-y-3 bg-gray-50 p-4 rounded-lg border">
-                    <li><strong>준비물:</strong> 레메론정 15mg 1알, 10mL 주사기, 물, 차광 약병</li>
-                    <li><strong>용해:</strong> 10mL 주사기에 <strong>레메론 15mg 1알</strong>을 넣고, <strong>물 8mL</strong>를 정확히 채웁니다.</li>
-                    <li><strong>혼합:</strong> 주사기 입구를 막고 약이 완전히 녹아 뿌연 현탁액이 될 때까지 충분히 흔들어줍니다.</li>
-                    <li><strong>확인:</strong> 이제 용액은 1mL 당 1.875mg의 머타자핀을 함유합니다. <span class="text-xs font-mono">(15mg ÷ 8mL = 1.875mg/mL)</span></li>
-                </ol>
-            </div>
-
-            <div class="mt-6">
-                <h4 class="font-semibold text-gray-800 mb-2">🚨 투여 및 보관 시 핵심 주의사항</h4>
-                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 space-y-2">
-                    <p><strong>사용 전 반드시 흔들기:</strong> 입자가 가라앉으므로 투여 직전 잘 흔들어 농도를 균일하게 해야 합니다.</p>
-                    <p><strong>냉장 및 차광 보관:</strong> 빛에 약하므로 차광 약병에 담아 반드시 냉장 보관해야 합니다.</p>
-                    <p><strong>3~4일마다 새로 조제:</strong> 물에 녹인 약은 변질될 수 있으므로, 3~4일 간격으로 새로 조제해야 안전합니다.</p>
-                </div>
-            </div>
-
-            <div class="mt-8 pt-4 border-t">
-                 <div class="p-4 rounded-lg bg-green-50 border border-green-200">
-                    <h4 class="font-bold text-lg text-center text-green-700 mb-2">💡 대안: 경피용 연고 (Transdermal)</h4>
-                    <p class="text-center"><strong class="text-2xl font-bold text-green-600">${transdermalDoseMg} mg/cat</strong> (제품에 표시된 1회용 길이)</p>
-                    <p class="text-center mt-2"><strong>투여 간격:</strong> <span class="font-semibold">${transdermalFrequency}</span>마다 1회</p>
+        doseResultDiv.innerHTML = `
+            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <h4 class="font-bold text-lg text-center text-blue-800 mb-3">📋 계산 결과</h4>
+                <div class="text-center space-y-2">
+                    <p><strong>총 투여 용량 (mg):</strong> <span class="text-xl font-bold text-blue-600">${totalDoseMg.toFixed(2)} mg</span></p>
+                    <p><strong>투여할 용액량 (mL):</strong> <span class="text-3xl font-bold text-red-600">${finalVolumeMl.toFixed(2)} mL</span></p>
+                    <p class="text-sm text-gray-600">(조제된 ${suspensionConcentration} mg/mL 현탁액 기준)</p>
+                    <hr class="my-2">
+                    <p><strong>투여 간격:</strong> <span class="font-semibold">매 24시간 (1일 1회)</span></p>
                 </div>
             </div>
         `;
