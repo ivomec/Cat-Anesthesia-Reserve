@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 머타자핀 탭
         document.getElementById('petWeightMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
-        document.getElementById('targetDoseMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
+        document.querySelectorAll('input[name="mirtazapine_dose_option"]').forEach(radio => radio.addEventListener('change', calculateMirtazapineDose));
+
 
         // 노스판 탭
         const attachDateEl = document.getElementById('attachDate');
@@ -481,14 +482,19 @@ document.addEventListener('DOMContentLoaded', function () {
         doseResultDiv.innerHTML = htmlContent;
     }
     
-    // --- 머타자핀 탭 계산기 (스태프용 수정) ---
+    // --- 머타자핀 탭 계산기 (스태프용, 용량 선택 기능) ---
     function calculateMirtazapineDose() {
         const doseResultDiv = document.getElementById('doseResultMirtazapine');
         const weight = parseFloat(document.getElementById('petWeightMirtazapine').value);
-        const targetDoseMgKg = parseFloat(document.getElementById('targetDoseMirtazapine').value);
+        
+        let targetDoseMgKg = 0;
+        const selectedDoseRadio = document.querySelector('input[name="mirtazapine_dose_option"]:checked');
+        if (selectedDoseRadio) {
+            targetDoseMgKg = parseFloat(selectedDoseRadio.value);
+        }
 
         if (isNaN(weight) || weight <= 0 || isNaN(targetDoseMgKg) || targetDoseMgKg <= 0) {
-            doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 체중과 목표 용량(mg/kg)을 입력하시면 투여량이 자동 계산됩니다.</p>';
+            doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 체중과 목표 용량을 선택하시면 투여량이 자동 계산됩니다.</p>';
             return;
         }
 
@@ -512,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
     }
+
 
     // --- 노스판 탭 날짜 계산 ---
     function calculateRemovalDate() {
