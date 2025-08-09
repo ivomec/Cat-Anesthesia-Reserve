@@ -260,10 +260,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const weight = parseFloat(weightInput.value);
         
         if (!weightInput.value || isNaN(weight) || weight <= 0) {
-            const elementsToClear = ['pre_op_drugs_result_cat', 'nerve_block_result_cat', 'ketamine_cri_result_cat', 'hypotension_protocol_cat', 'cpa_protocol_cat'];
+            const elementsToClear = ['pre_op_drugs_result_cat', 'nerve_block_result_cat', 'ketamine_cri_result_cat', 'hypotension_protocol_cat', 'cpa_protocol_cat', 'antibiotic_result_display'];
             elementsToClear.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.innerHTML = '체중을 입력해주세요.';
+                if (el) {
+                    if (id === 'antibiotic_result_display') {
+                        el.innerHTML = '<p class="text-gray-500">체중을 입력해주세요.</p>';
+                    } else {
+                        el.innerHTML = '체중을 입력해주세요.';
+                    }
+                }
             });
             const bradycardiaEl = document.getElementById('bradycardia_protocol_cat');
             if (bradycardiaEl) bradycardiaEl.innerHTML = '';
@@ -310,34 +316,37 @@ document.addEventListener('DOMContentLoaded', function () {
         
         let patchRecommendation = (weight <= 3.0) ? "5 mcg/h 1매" : (weight <= 6.0) ? "10 mcg/h 1매" : "20 mcg/h 1매";
 
-        let antibioticHtml = '';
-        const antibioticProtocol = document.getElementById('antibiotic_protocol').value;
-
-        switch (antibioticProtocol) {
-            case 'baytril50':
-                antibioticHtml = `<div class="p-3 bg-teal-50 rounded-lg"><h4 class="font-bold text-teal-800">예방적 항생제</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span> 바이트릴 50주</p></div>`;
-                break;
-            case 'cefronseven':
-                antibioticHtml = `<div class="p-3 bg-teal-50 rounded-lg"><h4 class="font-bold text-teal-800">예방적 항생제</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span> 세프론세븐</p></div>`;
-                break;
-            case 'baytril25':
-                antibioticHtml = `<div class="p-3 bg-teal-50 rounded-lg"><h4 class="font-bold text-teal-800">예방적 항생제</h4><p><span class="result-value">${(weight * 0.1).toFixed(2)} mL</span> 바이트릴 25주</p></div>`;
-                break;
-            case 'baytril50_dexa':
-                antibioticHtml = `<div class="p-3 bg-teal-50 rounded-lg"><h4 class="font-bold text-teal-800">항생제 & 스테로이드</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span> 바이트릴 50주</p><p><span class="result-value">${(weight * 0.1).toFixed(2)} mL</span> 덱사메타손</p></div>`;
-                break;
-            case 'cefronseven_dexa':
-                antibioticHtml = `<div class="p-3 bg-teal-50 rounded-lg"><h4 class="font-bold text-teal-800">항생제 & 스테로이드</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span> 세프론세븐</p><p><span class="result-value">${(weight * 0.1).toFixed(2)} mL</span> 덱사메타손</p></div>`;
-                break;
-        }
-
         document.getElementById('pre_op_drugs_result_cat').innerHTML = `
             <div class="p-3 bg-blue-50 rounded-lg"><h4 class="font-bold text-blue-800">마취 전 투약</h4><p><span class="result-value">${butorMl.toFixed(2)} mL</span> 부토르파놀</p><p><span class="result-value">${midaMl.toFixed(2)} mL</span> 미다졸람</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
             <div class="p-3 bg-amber-50 rounded-lg"><h4 class="font-bold text-amber-800">케타민 부하</h4><p><span class="result-value">${ketaLoadMl.toFixed(2)} mL</span> (희석액)</p><p class="text-xs text-gray-600 font-semibold mt-1">※ 희석: 케타민(50주) 0.2mL + N/S 0.8mL</p></div>
             <div class="p-3 bg-indigo-50 rounded-lg"><h4 class="font-bold text-indigo-800">마취 유도제</h4><p><span class="result-value">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span> 알팍산</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
             <div class="p-3 bg-cyan-50 rounded-lg"><h4 class="font-bold text-cyan-800">수액 속도</h4><p><span class="result-value">${fluidTarget.toFixed(1)} mL/hr</span></p></div>
             <div class="p-3 bg-fuchsia-50 rounded-lg"><h4 class="font-bold text-fuchsia-800">노스판 패치</h4><p class="result-value">${patchRecommendation}</p></div>
-            ${antibioticHtml}`;
+        `;
+
+        // 예방적 항생제 계산
+        const antibioticProtocol = document.getElementById('antibiotic_protocol').value;
+        const antibioticResultDiv = document.getElementById('antibiotic_result_display');
+        let antibioticResultHtml = '<p class="text-gray-500">프로토콜을 선택해주세요.</p>';
+
+        switch (antibioticProtocol) {
+            case 'baytril50':
+                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 50주</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p>`;
+                break;
+            case 'cefronseven':
+                antibioticResultHtml = `<h4 class="font-bold text-teal-800">세프론세븐</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p>`;
+                break;
+            case 'baytril25':
+                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 25주</h4><p><span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                break;
+            case 'baytril50_dexa':
+                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 50주 & 스테로이드</h4><p>바이트릴: <span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p><p>덱사메타손: <span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                break;
+            case 'cefronseven_dexa':
+                antibioticResultHtml = `<h4 class="font-bold text-teal-800">세프론세븐 & 스테로이드</h4><p>세프론세븐: <span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p><p>덱사메타손: <span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                break;
+        }
+        if (antibioticResultDiv) antibioticResultDiv.innerHTML = antibioticResultHtml;
 
         document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
         if (isChill) {
@@ -562,9 +571,4 @@ document.addEventListener('DOMContentLoaded', function () {
         if (selectedCatTubeInfo.size) {
             const cuffStatus = selectedCatTubeInfo.cuff ? '<span class="text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>확인 완료</span>' : '<span class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-1"></i>미확인</span>';
             const notesText = selectedCatTubeInfo.notes ? `<p class="text-sm text-gray-600 mt-2"><strong>메모:</strong> ${selectedCatTubeInfo.notes}</p>` : '';
-            displayDiv.innerHTML = `<div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-4"><p class="text-lg"><strong>선택된 Tube 사이즈 (ID):</strong> <span class="result-value text-2xl">${selectedCatTubeInfo.size}</span></p><p class="text-lg"><strong>커프(Cuff) 확인:</strong> ${cuffStatus}</p></div>${notesText}`;
-        } else {
-            displayDiv.innerHTML = '<p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. \'ET Tube\' 탭에서 기록해주세요.</p>';
-        }
-    }
-});
+            displayDiv.innerHTML = `<div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-4"><p class="text-lg"><strong>선택된 Tube 사이즈 (ID):</strong> <span class="result
