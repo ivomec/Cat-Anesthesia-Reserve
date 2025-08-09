@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고양이 통합 마취 및 교육 대시보드 v4.1 - 금호동물병원</title>
+    <title>고양이 통합 마취 및 교육 대시보드 v4.2 - 금호동물병원</title>
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -36,6 +36,8 @@
         .action-button.secondary:hover { background-color: #059669; }
         .action-button.tertiary { background-color: #6b7280; }
         .action-button.tertiary:hover { background-color: #4b5563; }
+        .highlight-recommend { border: 2px solid #ef4444; }
+        .prep-card { min-height: 150px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -65,7 +67,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.1</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.2</h1>
             <p class="mt-2 text-lg text-gray-600">금호동물병원 실전 워크플로우 (Anes AI & Guardian EDU)</p>
         </header>
 
@@ -147,31 +149,58 @@
                     <p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. 'ET Tube' 탭에서 기록해주세요.</p>
                 </div>
 
-                <h2 class="section-title">수술 전 약물 준비</h2>
-                <div class="info-box mb-4"><p><strong>목표:</strong> 마취에 필요한 모든 주사 약물과 수액, 패치를 미리 정확한 용량으로 준비하여, 마취 과정 중 실수를 방지하고 신속하게 대처합니다.</p></div>
-                <div id="pre_op_drugs_result_cat" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">...</div>
+                <h2 class="section-title">수술 전 약물 준비 (Pre-Anesthetic Drug Prep)</h2>
+                <div class="info-box mb-6"><p><strong>목표:</strong> 마취에 필요한 모든 주사 약물과 수액을 미리 정확한 용량으로 준비하여, 마취 과정 중 실수를 방지하고 신속하게 대처합니다.</p></div>
                 
-                <!-- 예방적 항생제 섹션 -->
-                <h3 class="text-xl font-bold text-gray-800 mt-8 mb-4 border-t pt-6">예방적 항생제</h3>
-                <div class="bg-gray-50 p-4 rounded-lg border">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                        <div>
-                            <label for="antibiotic_protocol" class="block text-sm font-medium text-gray-700 mb-1">프로토콜 선택</label>
-                            <select id="antibiotic_protocol" class="w-full p-2 border border-gray-300 rounded-md text-base font-semibold">
-                                <option value="none" selected>선택 안함</option>
-                                <option value="baytril50">바이트릴 50주</option>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <!-- 예방적 항생제 -->
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200 space-y-2 flex flex-col prep-card">
+                        <h4 class="font-bold text-gray-700">예방적 항생제</h4>
+                        <div class="flex-grow flex flex-col justify-center space-y-2">
+                            <select id="antibiotic_protocol" class="w-full p-1 border border-gray-300 rounded-md text-sm font-semibold">
+                                <option value="baytril50" selected>바이트릴 50주</option>
                                 <option value="cefronseven">세프론세븐</option>
                                 <option value="baytril25">바이트릴 25주</option>
                                 <option value="baytril50_dexa">바이트릴 50주 & 스테로이드</option>
                                 <option value="cefronseven_dexa">세프론세븐 & 스테로이드</option>
+                                <option value="none">선택 안함</option>
                             </select>
+                            <div id="antibiotic_result" class="font-bold text-lg text-blue-600">...</div>
                         </div>
-                        <div id="antibiotic_result_display" class="p-3 bg-teal-50 rounded-lg text-center h-full flex flex-col justify-center">
-                            <p class="text-gray-500">프로토콜을 선택해주세요.</p>
-                        </div>
+                    </div>
+
+                    <!-- 노스판 패치 -->
+                    <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 flex flex-col justify-center prep-card">
+                        <h4 class="font-bold text-yellow-800">노스판 패치</h4>
+                        <div id="patch_result" class="font-bold text-lg text-blue-600">...</div>
+                    </div>
+
+                    <!-- 마취 전 투약 -->
+                    <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 flex flex-col justify-center prep-card">
+                        <h4 class="font-bold text-blue-800">마취 전 투약</h4>
+                        <div id="premed_result" class="text-blue-600 font-semibold">...</div>
+                    </div>
+
+                    <!-- LK 부하 용량 -->
+                    <div class="p-4 bg-orange-50 rounded-lg border border-orange-200 flex flex-col justify-center prep-card">
+                        <h4 class="font-bold text-orange-800">LK 부하 용량</h4>
+                        <div id="loading_dose_result" class="text-blue-600 font-semibold">...</div>
+                    </div>
+
+                    <!-- 도입 마취 -->
+                    <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200 flex flex-col justify-center prep-card">
+                        <h4 class="font-bold text-indigo-800">도입 마취</h4>
+                        <div id="induction_result" class="space-y-2 text-blue-600 font-semibold">...</div>
+                    </div>
+                    
+                    <!-- 수액 펌프 -->
+                    <div class="p-4 bg-cyan-50 rounded-lg border border-cyan-200 flex flex-col justify-center prep-card">
+                        <h4 class="font-bold text-cyan-800">수액 펌프</h4>
+                        <div id="fluid_result" class="font-bold text-lg text-blue-600">...</div>
                     </div>
                 </div>
             </div>
+
             <div id="chill_protocol_info_card" class="card p-6 md:p-8" style="display: none;">
                 <h2 class="section-title">Chill Protocol 적용 안내</h2>
                 <div class="info-box"><p><strong>목표:</strong> 병원 방문 자체에 극심한 스트레스를 받는 고양이를 위해, 내원 전 가정에서 미리 약물을 복용시켜 불안을 줄여주는 프로그램입니다.</p></div>
