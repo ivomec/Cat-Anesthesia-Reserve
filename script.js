@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function generateMirtazapineHtmlContent(weight, status) {
-        const frequency = (status === 'healthy') ? "매 48시간 (2일)" : "매 72시간 (3일)";
+        const frequency = (status === 'healthy') ? "매 24시간 (1일)" : "매 48시간 (2일)";
         const finalVolumeMl = 1.0;
         const transdermalDoseMg = 2;
         const transdermalFrequency = "매 24시간 (1일)";
