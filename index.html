@@ -117,18 +117,7 @@
                         <option value="yes">Chill 프로토콜</option>
                     </select>
                 </div>
-                <div>
-                    <label for="antibiotic_protocol" class="block text-center text-xl font-semibold text-gray-700 mb-2">예방적 항생제</label>
-                    <select id="antibiotic_protocol" class="w-full p-4 text-center text-lg select-field">
-                        <option value="none" selected>선택 안함</option>
-                        <option value="baytril50">바이트릴 50주</option>
-                        <option value="cefronseven">세프론세븐</option>
-                        <option value="baytril25">바이트릴 25주</option>
-                        <option value="baytril50_dexa">바이트릴 50주 & 스테로이드</option>
-                        <option value="cefronseven_dexa">세프론세븐 & 스테로이드</option>
-                    </select>
-                </div>
-                <div class="lg:col-span-1 p-2 rounded-lg bg-gray-50 border">
+                <div class="lg:col-span-2 p-2 rounded-lg bg-gray-50 border">
                     <label class="block text-center text-xl font-semibold text-gray-700 mb-2">특이사항</label>
                      <div class="checkbox-group text-center">
                         <label><input type="checkbox" id="liverIssue" class="w-4 h-4"> 간 이상</label>
@@ -153,7 +142,7 @@
 
         <div id="prepTab" class="tab-content active">
             <div class="card p-6 md:p-8">
-                 <h2 class="section-title">최종 선택 ET Tube</h2>
+                <h2 class="section-title">최종 선택 ET Tube</h2>
                 <div id="cat_et_tube_selection_display" class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg mb-6 text-center">
                     <p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. 'ET Tube' 탭에서 기록해주세요.</p>
                 </div>
@@ -161,6 +150,27 @@
                 <h2 class="section-title">수술 전 약물 준비</h2>
                 <div class="info-box mb-4"><p><strong>목표:</strong> 마취에 필요한 모든 주사 약물과 수액, 패치를 미리 정확한 용량으로 준비하여, 마취 과정 중 실수를 방지하고 신속하게 대처합니다.</p></div>
                 <div id="pre_op_drugs_result_cat" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">...</div>
+                
+                <!-- 예방적 항생제 섹션 -->
+                <h3 class="text-xl font-bold text-gray-800 mt-8 mb-4 border-t pt-6">예방적 항생제</h3>
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <label for="antibiotic_protocol" class="block text-sm font-medium text-gray-700 mb-1">프로토콜 선택</label>
+                            <select id="antibiotic_protocol" class="w-full p-2 border border-gray-300 rounded-md text-base font-semibold">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="baytril50">바이트릴 50주</option>
+                                <option value="cefronseven">세프론세븐</option>
+                                <option value="baytril25">바이트릴 25주</option>
+                                <option value="baytril50_dexa">바이트릴 50주 & 스테로이드</option>
+                                <option value="cefronseven_dexa">세프론세븐 & 스테로이드</option>
+                            </select>
+                        </div>
+                        <div id="antibiotic_result_display" class="p-3 bg-teal-50 rounded-lg text-center h-full flex flex-col justify-center">
+                            <p class="text-gray-500">프로토콜을 선택해주세요.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="chill_protocol_info_card" class="card p-6 md:p-8" style="display: none;">
                 <h2 class="section-title">Chill Protocol 적용 안내</h2>
