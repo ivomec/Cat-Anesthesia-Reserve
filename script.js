@@ -316,8 +316,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const alfaxanMlMax = (2 * weight * inductionFactor) / concentrations_cat.alfaxalone;
         const propofolMlMin = (2 * weight * inductionFactor) / concentrations_cat.propofol;
         const propofolMlMax = (6 * weight * inductionFactor) / concentrations_cat.propofol;
+        
         const fluidRate = status === 'cardiac' ? 1.5 : 3;
-        const fluidTarget = fluidRate * weight;
+        const actualTargetRate = fluidRate * weight;
+        const pumpSettingValue = actualTargetRate / 0.7; // Apply 70% efficiency correction
+
         let patchRecommendation = (weight <= 3.0) ? "5 ug/h 패치 적용" : (weight <= 6.0) ? "10 ug/h 패치 적용" : "20 ug/h 패치 적용";
 
         // 1. 예방적 항생제
@@ -379,10 +382,13 @@ document.addEventListener('DOMContentLoaded', function () {
             ${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
         `;
 
-        // 6. 수액 펌프
+        // 6. 수액 펌프 (보정 적용)
         document.getElementById('fluid_result').innerHTML = `
-            <span class="font-bold">${fluidTarget.toFixed(1)} mL/hr</span><br>
-            <span class="text-xs text-gray-600">(목표: ${fluidRate.toFixed(1)}mL/kg/hr)</span>
+            <div class="font-bold text-lg text-red-600">${pumpSettingValue.toFixed(2)} mL/hr</div>
+            <div class="text-xs text-gray-600 mt-1">
+                (실제 목표: ${actualTargetRate.toFixed(1)} mL/hr)<br>
+                <span class="font-semibold">펌프 효율(70%) 보정됨</span>
+            </div>
         `;
         
         // --- Other sections ---
