@@ -377,80 +377,76 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
         `;
-
+        
         // 6. 수액 펌프
         const fluidRates = {
-            normal: { pre: "2.0 - 3.0", intra: "3.0 - 5.0", post: "즉시 중단", intra_calc_rate: 3.0 },
-            cardiac: { pre: "1.0 - 1.5", intra: "1.0 - 2.0", post: "< 1.0 또는 중단", intra_calc_rate: 1.0 },
-            renal: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_rate: 2.0 },
-            liver: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_rate: 2.0 }
+            normal: { pre: "2.0 - 3.0", intra: "3.0 - 5.0", post: "즉시 중단", intra_calc_base: 5.0 },
+            cardiac: { pre: "1.0 - 1.5", intra: "1.0 - 2.0", post: "< 1.0 또는 중단", intra_calc_base: 2.0 },
+            renal: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 },
+            liver: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 }
         };
-        
         const renalStatus = document.getElementById('renal_status').value;
         const isLiverIssue = document.getElementById('liverIssue').checked;
-        
+        let patientTypeStr = "정상 환자";
         let currentRates;
-        // Priority: Cardiac > Renal > Liver > Normal
+
         if (status === 'cardiac') {
             currentRates = fluidRates.cardiac;
+            patientTypeStr = "심장 질환";
         } else if (renalStatus === 'renal') {
             currentRates = fluidRates.renal;
+            patientTypeStr = "신장 질환";
         } else if (isLiverIssue) {
             currentRates = fluidRates.liver;
+            patientTypeStr = "간 질환";
         } else {
             currentRates = fluidRates.normal;
         }
     
-        const calculateMlHrRange = (rateStr, weight) => {
-            if (rateStr.includes('중단')) { return rateStr; }
-            if (!rateStr.includes('-')) {
+        const correctionFactor = 0.7;
+    
+        const generateStageHtml = (label, rateStr, weight, intraBaseRate = null) => {
+            let settingText, targetText;
+    
+            if (rateStr.includes('중단') || rateStr.includes('<')) {
+                settingText = rateStr;
+                targetText = rateStr;
+            } else if (intraBaseRate !== null) {
+                const targetValue = (intraBaseRate * weight).toFixed(1);
+                const settingValue = (targetValue / correctionFactor).toFixed(1);
+                settingText = `${settingValue} mL/hr (시작점)`;
+                targetText = `${targetValue} mL/hr`;
+            } else if (rateStr.includes('-')) {
+                const [low, high] = rateStr.split(' - ').map(parseFloat);
+                const targetLow = (low * weight).toFixed(1);
+                const targetHigh = (high * weight).toFixed(1);
+                const settingLow = (targetLow / correctionFactor).toFixed(1);
+                const settingHigh = (targetHigh / correctionFactor).toFixed(1);
+                settingText = `${settingLow}~${settingHigh} mL/hr`;
+                targetText = `${targetLow}~${targetHigh} mL/hr`;
+            } else {
                 const rate = parseFloat(rateStr);
-                return isNaN(rate) ? rateStr : `${(rate * weight).toFixed(1)}`;
+                const targetValue = (rate * weight).toFixed(1);
+                const settingValue = (targetValue / correctionFactor).toFixed(1);
+                settingText = `${settingValue} mL/hr`;
+                targetText = `${targetValue} mL/hr`;
             }
-            const [low, high] = rateStr.split(' - ').map(parseFloat);
-            return `${(low * weight).toFixed(1)} - ${(high * weight).toFixed(1)}`;
+    
+            return `
+                <div class="mb-2">
+                    <div class="text-sm font-bold">${label}</div>
+                    <div class="font-bold text-lg text-red-600">${settingText}</div>
+                    <div class="text-xs text-gray-600">(목표: ${targetText})</div>
+                </div>
+            `;
         };
     
-        const preRate_kg = currentRates.pre;
-        const intraRate_kg = currentRates.intra;
-        const postRate_kg = currentRates.post;
+        const fluidHtmlPre = generateStageHtml('마취 전', currentRates.pre, weight);
+        const fluidHtmlIntra = generateStageHtml('마취 중', currentRates.intra, weight, currentRates.intra_calc_base);
+        const fluidHtmlPost = generateStageHtml('마취 후', currentRates.post, weight);
+        const fluidHtmlFooter = `<div class="text-xs text-center text-gray-500 mt-2 border-t pt-1">(${patientTypeStr} / 보정계수 ${correctionFactor} 적용)</div>`;
     
-        const preRate_ml = calculateMlHrRange(preRate_kg, weight);
-        const intraRate_ml = calculateMlHrRange(intraRate_kg, weight);
-        const postRate_ml = calculateMlHrRange(postRate_kg, weight);
-    
-        const actualTargetRate = currentRates.intra_calc_rate * weight;
-        const pumpSettingValue = actualTargetRate / 0.7;
-    
-        document.getElementById('fluid_result').innerHTML = `
-            <div class="text-xs text-left w-full space-y-1">
-                <div class="grid grid-cols-3 gap-1 font-semibold border-b pb-1 mb-1">
-                    <span>단계</span>
-                    <span class="text-center">권장(ml/kg/hr)</span>
-                    <span class="text-right">계산값(mL/hr)</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 items-center">
-                    <span>마취 전</span>
-                    <span class="text-center bg-gray-100 rounded">${preRate_kg}</span>
-                    <span class="text-right font-bold">${preRate_ml}</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 items-center text-blue-800">
-                    <span>마취 중</span>
-                    <span class="text-center bg-blue-100 rounded">${intraRate_kg}</span>
-                    <span class="text-right font-bold">${intraRate_ml}</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 items-center">
-                    <span>마취 후</span>
-                    <span class="text-center bg-gray-100 rounded">${postRate_kg}</span>
-                    <span class="text-right font-bold">${postRate_ml}</span>
-                </div>
-            </div>
-            <div class="border-t mt-2 pt-1 text-center">
-                <div class="text-sm font-bold text-red-700">펌프 설정값 (마취 중)</div>
-                <div class="font-bold text-xl text-red-600">${pumpSettingValue.toFixed(2)} mL/hr</div>
-                <div class="text-xs text-gray-600">펌프효율(70%) 보정됨</div>
-            </div>
-        `;
+        document.getElementById('fluid_result').innerHTML = `${fluidHtmlPre}${fluidHtmlIntra}${fluidHtmlPost}${fluidHtmlFooter}`;
 
         // --- Other sections ---
         // Chill 프로토콜
