@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고양이 통합 마취 및 교육 대시보드 v4.1 - 금호동물병원</title>
+    <title>고양이 통합 마취 및 교육 대시보드 v4.2 - 금호동물병원</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -64,11 +64,10 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.1</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.2</h1>
             <p class="mt-2 text-lg text-gray-600">금호동물병원 실전 워크플로우 (Anes AI & Guardian EDU)</p>
         </header>
 
-        <!-- === 새로운 기능 버튼 섹션 === -->
         <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <button id="saveJsonBtn" class="action-button font-bold py-3 px-6 rounded-lg shadow-md flex items-center justify-center text-lg">
                 <i class="fas fa-save mr-3"></i> 기록 저장 (JSON)
@@ -133,6 +132,7 @@
                 <button class="tab-button" onclick="openTab(event, 'etTubeTab')"><i class="fa-solid fa-staff-snake mr-2"></i>ET Tube</button>
                 <button class="tab-button" onclick="openTab(event, 'emergencyTab')"><i class="fas fa-heart-pulse mr-2"></i>응급상황 대처</button>
                 <button class="tab-button" onclick="openTab(event, 'dischargeTab')"><i class="fas fa-file-prescription mr-2"></i>퇴원약 조제</button>
+                <button class="tab-button" onclick="openTab(event, 'mirtazapineTab')"><i class="fas fa-utensils mr-2"></i>머타자핀 안내</button>
                 <button class="tab-button" onclick="openTab(event, 'stomatitisTab')"><i class="fas fa-tooth mr-2"></i>만성 구내염 안내</button>
                 <button class="tab-button" onclick="openTab(event, 'cyclosporineTab')"><i class="fas fa-pills mr-2"></i>사이클로스포린 안내</button>
                 <button class="tab-button" onclick="openTab(event, 'gabapentinTab')"><i class="fas fa-capsules mr-2"></i>가바펜틴 안내</button>
@@ -140,7 +140,6 @@
             </div>
         </div>
 
-        <!-- 마취 준비 탭 -->
         <div id="prepTab" class="tab-content active">
             <div class="card p-6 md:p-8">
                  <h2 class="section-title">최종 선택 ET Tube</h2>
@@ -173,7 +172,6 @@
             </div>
         </div>
 
-        <!-- ET Tube 탭 -->
         <div id="etTubeTab" class="tab-content">
              <div class="card p-6 md:p-8">
                 <h2 class="section-title">최종 선택 ET Tube 기록</h2>
@@ -253,7 +251,6 @@
             </div>
         </div>
         
-        <!-- 응급상황 탭 -->
         <div id="emergencyTab" class="tab-content">
             <div class="card p-6 md:p-8">
                 <h2 class="section-title text-red-600"><i class="fas fa-triangle-exclamation mr-2"></i>마취 중 문제 해결 (고양이)</h2>
@@ -271,7 +268,6 @@
             </div>
         </div>
 
-        <!-- 퇴원약 탭 -->
         <div id="dischargeTab" class="tab-content">
             <div class="card p-6 md:p-8">
                 <div class="section">
@@ -334,7 +330,114 @@
             </div>
         </div>
 
-        <!-- 만성 구내염 안내 탭 -->
+        <div id="mirtazapineTab" class="tab-content">
+            <div class="card p-6 md:p-8">
+                <header class="text-center mb-10">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold mb-2" style="background: linear-gradient(135deg, #38b2ac 0%, #3182ce 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">🍽️ 머타자핀(Mirtazapine) 복약 안내문</h1>
+                    <p class="text-slate-500 text-lg">우리 아이의 편안한 식사와 컨디션 회복을 위한 길잡이</p>
+                </header>
+
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">머타자핀, 어떤 약인가요?</h2>
+                    <div class="bg-slate-50 p-6 rounded-lg text-gray-700 leading-relaxed space-y-4">
+                        <p>머타자핀은 뇌의 특정 신경전달물질(세로토닌, 노르에피네프린)을 조절하여 **강력한 식욕 촉진 및 구토 억제 효과**를 나타내는 약물입니다. 원래는 사람의 항우울제로 개발되었지만, 고양이에게서는 이러한 부가적인 효과가 매우 유용하게 작용하여 식욕 부진 치료에 널리 사용됩니다.</p>
+                        <div class="flex items-start text-blue-800 font-semibold p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <i class="fas fa-lightbulb mr-4 text-2xl mt-1"></i>
+                            <span>단순히 배고픔을 느끼게 하는 것을 넘어, 음식에 대한 긍정적인 인식을 높여주고 구역감을 줄여주어 아이가 보다 편안하게 식사에 다가갈 수 있도록 돕는 것이 핵심 원리입니다.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">어떤 경우에 처방되나요?</h2>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <li class="bg-slate-50 p-4 rounded-lg flex items-center"><i class="fas fa-cat text-teal-500 text-xl mr-3"></i>만성 신장 질환(CKD)으로 인한 식욕 부진</li>
+                        <li class="bg-slate-50 p-4 rounded-lg flex items-center"><i class="fas fa-cat text-teal-500 text-xl mr-3"></i>수술 후 또는 회복기 식욕 저하</li>
+                        <li class="bg-slate-50 p-4 rounded-lg flex items-center"><i class="fas fa-cat text-teal-500 text-xl mr-3"></i>항암 치료 중 구역감 및 식욕 부진</li>
+                        <li class="bg-slate-50 p-4 rounded-lg flex items-center"><i class="fas fa-cat text-teal-500 text-xl mr-3"></i>원인 불명의 노령성 식욕 감소</li>
+                    </ul>
+                </section>
+                
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">환자 맞춤형 용량 계산기</h2>
+                    <div class="card p-6 border-2 border-teal-100 rounded-lg shadow-lg mb-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 items-center">
+                            <div>
+                                <label for="petWeightMirtazapine" class="font-bold text-gray-700 mb-2 block">1. 환자 체중 (kg):</label>
+                                <input type="number" id="petWeightMirtazapine" class="w-full p-2 border-2 border-slate-300 rounded-lg text-center text-xl" placeholder="⚖️ 체중 입력">
+                            </div>
+                            <div>
+                                <label for="healthStatusMirtazapine" class="font-bold text-gray-700 mb-2 block">2. 환자 상태:</label>
+                                <select id="healthStatusMirtazapine" class="w-full p-2 border-2 border-slate-300 rounded-lg text-center text-lg">
+                                    <option value="healthy">건강/성묘</option>
+                                    <option value="ckd_senior">만성신부전/간부전/노령묘</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="doseResultMirtazapine" class="p-6 rounded-lg bg-teal-50 border border-teal-200">
+                        <p class="text-gray-700">👆 상단의 체중과 환자 상태를 선택하시면 권장 용량이 계산됩니다.</p>
+                    </div>
+                </section>
+                
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">두 가지 투여 방법</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                            <h3 class="font-bold text-xl mb-3 text-center">💊 경구용 정제 (먹이는 약)</h3>
+                            <p class="text-sm mb-4">가장 일반적인 방법입니다. 정확한 용량을 투여하기 위해 알약 커터기를 사용하여 처방된 크기로 잘라 투여해주세요.</p>
+                            <ul class="list-disc list-inside space-y-2 text-sm">
+                                <li>필 포켓이나 아이가 좋아하는 간식에 숨겨 급여</li>
+                                <li>어려울 경우, 입을 부드럽게 열어 목구멍 깊숙이 넣고 입을 닫은 후 코에 바람을 불거나 목을 쓰다듬어 삼키도록 유도</li>
+                                <li>투여 후 물이나 츄르를 소량 급여하여 약이 식도에 걸리지 않게 도와주세요.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                            <h3 class="font-bold text-xl mb-3 text-center">👂 경피용 연고 (귀에 바르는 약)</h3>
+                            <p class="text-sm mb-4">먹는 약에 스트레스를 받는 아이들을 위한 효과적인 대안입니다. (제품명: 미라타즈®)</p>
+                            <ul class="list-disc list-inside space-y-2 text-sm">
+                                <li><strong>보호자님은 반드시 장갑을 착용하세요!</strong></li>
+                                <li>처방된 양(보통 1회용 길이)을 장갑 낀 손가락에 짭니다.</li>
+                                <li>고양이의 귓바퀴 안쪽(털이 없는 부분)에 부드럽게 문질러 발라줍니다.</li>
+                                <li>매일 다른 쪽 귀에 번갈아 발라주세요. (예: 월-왼쪽, 화-오른쪽)</li>
+                                <li>바르기 전, 물티슈로 이전의 약물 잔여물을 가볍게 닦아내 주세요.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">부작용 및 주의사항</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-200">
+                            <h4 class="text-xl font-bold text-yellow-800 flex items-center mb-3"><i class="fas fa-check-circle mr-2"></i>흔하게 나타날 수 있는 반응</h4>
+                            <p class="text-sm mb-2 text-gray-600">(대부분 일시적이며 약효의 일부입니다)</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><strong>과도한 울음 또는 수다스러움</strong></li>
+                                <li>평소보다 애교가 많아지거나 몸을 비빔</li>
+                                <li>가벼운 졸음 또는 반대로 활동량 증가</li>
+                                <li>식탐이 매우 강해짐</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 p-5 rounded-lg border border-red-200">
+                            <h4 class="text-xl font-bold text-red-800 flex items-center mb-3"><i class="fas fa-exclamation-triangle mr-2"></i>드물지만 즉시 연락 필요한 경우</h4>
+                             <p class="text-sm mb-2 text-gray-600">(과용량 또는 세로토닌 증후군 의심)</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>심한 흥분, 공격성, 방향감각 상실</li>
+                                <li>몸을 심하게 떨거나 경련</li>
+                                <li>심박수나 호흡이 비정상적으로 빠름</li>
+                                <li>구토, 설사, 고열</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-md">
+                        <h3 class="text-xl font-bold text-indigo-900 mb-3">🚨 약물 상호작용 주의!</h3>
+                        <p class="text-gray-700">트라마돌(진통제), 특정 항우울제(SSRI 계열), MAOI 계열 약물과 함께 복용 시 부작용 위험이 증가할 수 있습니다. 현재 복용 중인 다른 약이나 영양제가 있다면 반드시 수의사에게 알려주세요.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+
         <div id="stomatitisTab" class="tab-content">
             <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden p-4 sm:p-6 md:p-8">
                 <header class="text-center mb-10"><h1 id="stomatitisTitle" class="text-3xl sm:text-4xl font-extrabold mb-2 gradient-text">우리 아이를 위한<br>만성 구내염 및 전발치 안내서</h1><p class="text-slate-500">사랑하는 반려묘의 건강한 삶을 위한 중요한 안내입니다.</p></header>
@@ -346,7 +449,6 @@
             </div>
         </div>
         
-        <!-- 사이클로스포린 안내 탭 -->
         <div id="cyclosporineTab" class="tab-content">
              <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden p-4 sm:p-6 md:p-8">
                 <header class="text-center mb-8"><h1 id="cyclosporineTitle" class="text-3xl sm:text-4xl font-black" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">✨ 사이클로스포린 복약 안내문 ✨</h1><p class="mt-2 text-lg text-gray-600">❤️ 우리 아이의 건강하고 행복한 삶을 위한 약속 ❤️</p></header>
@@ -357,7 +459,6 @@
              </div>
         </div>
 
-        <!-- 가바펜틴 안내 탭 -->
         <div id="gabapentinTab" class="tab-content">
             <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                 <header style="background: linear-gradient(135deg, #a8c0ff, #3f2b96);" class="text-white p-8 md:p-12 text-center rounded-t-2xl"><div class="flex justify-center items-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg><h1 class="text-3xl md:text-4xl font-bold ml-3" id="gabapentinTitle"><span>우리 아이</span><span>를</span> 위한 편안한 진료 준비 안내서</h1></div><p class="text-lg opacity-90">우리 아이의 스트레스를 줄여 더 안전하고 정확한 진료를 받기 위한 과정입니다.</p></header>
@@ -365,7 +466,6 @@
             </div>
         </div>
 
-        <!-- 노스판 안내문 탭 -->
         <div id="norspanHandoutTab" class="tab-content">
             <div class="card p-6 md:p-8">
                 <h2 class="section-title">보호자 안내문 생성 (노스판 패치)</h2>
