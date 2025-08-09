@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- 데이터 저장/불러오기/이미지 기능 (수정됨) ---
+    // --- 데이터 저장/불러오기/이미지 기능 ---
     function gatherDashboardData() {
         try {
             const dischargeMeds = [];
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 patientStatus: document.getElementById('patient_status')?.value || 'healthy',
                 renalStatus: document.getElementById('renal_status')?.value || 'healthy',
                 chillProtocol: document.getElementById('chill_protocol')?.value || 'no',
-                antibioticProtocol: document.getElementById('antibiotic_protocol')?.value || 'none',
+                antibioticProtocol: document.getElementById('antibiotic_protocol')?.value || 'baytril50',
                 liverIssue: document.getElementById('liverIssue')?.checked || false,
                 kidneyIssue: document.getElementById('kidneyIssue')?.checked || false,
                 etTubeInfo: selectedCatTubeInfo,
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('patient_status').value = data.patientStatus || 'healthy';
             document.getElementById('renal_status').value = data.renalStatus || 'healthy';
             document.getElementById('chill_protocol').value = data.chillProtocol || 'no';
-            document.getElementById('antibiotic_protocol').value = data.antibioticProtocol || 'none';
+            document.getElementById('antibiotic_protocol').value = data.antibioticProtocol || 'baytril50';
             document.getElementById('liverIssue').checked = data.liverIssue || false;
             document.getElementById('kidneyIssue').checked = data.kidneyIssue || false;
 
@@ -260,15 +260,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const weight = parseFloat(weightInput.value);
         
         if (!weightInput.value || isNaN(weight) || weight <= 0) {
-            const elementsToClear = ['pre_op_drugs_result_cat', 'nerve_block_result_cat', 'ketamine_cri_result_cat', 'hypotension_protocol_cat', 'cpa_protocol_cat', 'antibiotic_result_display'];
+            const elementsToClear = [
+                'antibiotic_result', 'patch_result', 'premed_result', 
+                'loading_dose_result', 'induction_result', 'fluid_result',
+                'nerve_block_result_cat', 'ketamine_cri_result_cat', 
+                'hypotension_protocol_cat', 'cpa_protocol_cat'
+            ];
             elementsToClear.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    if (id === 'antibiotic_result_display') {
-                        el.innerHTML = '<p class="text-gray-500">체중을 입력해주세요.</p>';
-                    } else {
-                        el.innerHTML = '체중을 입력해주세요.';
-                    }
+                     el.innerHTML = id.includes('_cat') ? '체중을 입력해주세요.' : '...';
                 }
             });
             const bradycardiaEl = document.getElementById('bradycardia_protocol_cat');
@@ -306,53 +307,92 @@ document.addEventListener('DOMContentLoaded', function () {
         const premedFactor = isChill ? 0.5 : 1.0;
         const inductionFactor = isChill ? 0.5 : 1.0;
 
+        // Calculations
         const butorMl = (0.2 * weight * premedFactor) / concentrations_cat.butorphanol;
         const midaMl = (0.2 * weight * premedFactor) / concentrations_cat.midazolam;
+        const lidoMl = (1 * weight) / concentrations_cat.lidocaine; // 1mg/kg
         const ketaLoadMl = (0.5 * weight) / concentrations_cat.ketamine_diluted;
         const alfaxanMlMin = (1 * weight * inductionFactor) / concentrations_cat.alfaxalone;
         const alfaxanMlMax = (2 * weight * inductionFactor) / concentrations_cat.alfaxalone;
-        const fluidRate = status === 'healthy' ? 3 : 1.5;
+        const propofolMlMin = (2 * weight * inductionFactor) / concentrations_cat.propofol;
+        const propofolMlMax = (6 * weight * inductionFactor) / concentrations_cat.propofol;
+        const fluidRate = status === 'cardiac' ? 1.5 : 3;
         const fluidTarget = fluidRate * weight;
-        
-        let patchRecommendation = (weight <= 3.0) ? "5 mcg/h 1매" : (weight <= 6.0) ? "10 mcg/h 1매" : "20 mcg/h 1매";
+        let patchRecommendation = (weight <= 3.0) ? "5 ug/h 패치 적용" : (weight <= 6.0) ? "10 ug/h 패치 적용" : "20 ug/h 패치 적용";
 
-        document.getElementById('pre_op_drugs_result_cat').innerHTML = `
-            <div class="p-3 bg-blue-50 rounded-lg"><h4 class="font-bold text-blue-800">마취 전 투약</h4><p><span class="result-value">${butorMl.toFixed(2)} mL</span> 부토르파놀</p><p><span class="result-value">${midaMl.toFixed(2)} mL</span> 미다졸람</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
-            <div class="p-3 bg-amber-50 rounded-lg"><h4 class="font-bold text-amber-800">케타민 부하</h4><p><span class="result-value">${ketaLoadMl.toFixed(2)} mL</span> (희석액)</p><p class="text-xs text-gray-600 font-semibold mt-1">※ 희석: 케타민(50주) 0.2mL + N/S 0.8mL</p></div>
-            <div class="p-3 bg-indigo-50 rounded-lg"><h4 class="font-bold text-indigo-800">마취 유도제</h4><p><span class="result-value">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span> 알팍산</p>${isChill ? '<p class="text-xs text-red-600 font-bold mt-1">※ Chill 50% 감량</p>' : ''}</div>
-            <div class="p-3 bg-cyan-50 rounded-lg"><h4 class="font-bold text-cyan-800">수액 속도</h4><p><span class="result-value">${fluidTarget.toFixed(1)} mL/hr</span></p></div>
-            <div class="p-3 bg-fuchsia-50 rounded-lg"><h4 class="font-bold text-fuchsia-800">노스판 패치</h4><p class="result-value">${patchRecommendation}</p></div>
-        `;
-
-        // 예방적 항생제 계산
+        // 1. 예방적 항생제
         const antibioticProtocol = document.getElementById('antibiotic_protocol').value;
-        const antibioticResultDiv = document.getElementById('antibiotic_result_display');
-        let antibioticResultHtml = '<p class="text-gray-500">프로토콜을 선택해주세요.</p>';
-
+        const antibioticResultDiv = document.getElementById('antibiotic_result');
+        let antibioticResultHtml = 'N/A';
         switch (antibioticProtocol) {
             case 'baytril50':
-                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 50주</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p>`;
+                antibioticResultHtml = `${(weight * 0.05).toFixed(2)} mL`;
                 break;
             case 'cefronseven':
-                antibioticResultHtml = `<h4 class="font-bold text-teal-800">세프론세븐</h4><p><span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p>`;
+                antibioticResultHtml = `${(weight * 0.05).toFixed(2)} mL`;
                 break;
             case 'baytril25':
-                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 25주</h4><p><span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                antibioticResultHtml = `${(weight * 0.1).toFixed(2)} mL`;
                 break;
             case 'baytril50_dexa':
-                antibioticResultHtml = `<h4 class="font-bold text-teal-800">바이트릴 50주 & 스테로이드</h4><p>바이트릴: <span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p><p>덱사메타손: <span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                antibioticResultHtml = `<span class="text-sm">바이트릴: ${(weight * 0.05).toFixed(2)} mL<br>덱사: ${(weight * 0.1).toFixed(2)} mL</span>`;
                 break;
             case 'cefronseven_dexa':
-                antibioticResultHtml = `<h4 class="font-bold text-teal-800">세프론세븐 & 스테로이드</h4><p>세프론세븐: <span class="result-value">${(weight * 0.05).toFixed(2)} mL</span></p><p>덱사메타손: <span class="result-value">${(weight * 0.1).toFixed(2)} mL</span></p>`;
+                antibioticResultHtml = `<span class="text-sm">세프론세븐: ${(weight * 0.05).toFixed(2)} mL<br>덱사: ${(weight * 0.1).toFixed(2)} mL</span>`;
+                break;
+            case 'none':
+                antibioticResultHtml = '선택 안함';
                 break;
         }
-        if (antibioticResultDiv) antibioticResultDiv.innerHTML = antibioticResultHtml;
+        antibioticResultDiv.innerHTML = antibioticResultHtml;
 
+        // 2. 노스판 패치
+        document.getElementById('patch_result').innerHTML = patchRecommendation;
+
+        // 3. 마취 전 투약
+        document.getElementById('premed_result').innerHTML = `
+            <span class="font-bold">${butorMl.toFixed(2)} mL</span> 부토르파놀<br>
+            <span class="font-bold">${midaMl.toFixed(2)} mL</span> 미다졸람
+            ${isChill ? '<br><span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
+        `;
+
+        // 4. LK 부하 용량
+        document.getElementById('loading_dose_result').innerHTML = `
+            <span class="font-bold">${lidoMl.toFixed(2)} mL</span> 리도카인<br>
+            <span class="font-bold">${ketaLoadMl.toFixed(2)} mL</span> 케타민(희석)<br>
+            <span class="text-xs text-gray-600 font-semibold">※ 케타민(50주) 0.2mL + N/S 0.8mL</span>
+        `;
+
+        // 5. 도입 마취
+        let alfaxanHighlightClass = '';
+        if (status === 'cardiac') {
+            alfaxanHighlightClass = 'highlight-recommend';
+        }
+        document.getElementById('induction_result').innerHTML = `
+            <div class="${alfaxanHighlightClass} p-1 rounded-md transition-all">
+                알팍산: <span class="font-bold">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span>
+            </div>
+            <div>
+                프로포폴: <span class="font-bold">${propofolMlMin.toFixed(2)}~${propofolMlMax.toFixed(2)} mL</span>
+                <span class="text-xs text-gray-600 block">(2-6 mg/kg)</span>
+            </div>
+            ${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
+        `;
+
+        // 6. 수액 펌프
+        document.getElementById('fluid_result').innerHTML = `
+            <span class="font-bold">${fluidTarget.toFixed(1)} mL/hr</span><br>
+            <span class="text-xs text-gray-600">(목표: ${fluidRate.toFixed(1)}mL/kg/hr)</span>
+        `;
+        
+        // --- Other sections ---
+        // Chill 프로토콜
         document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
         if (isChill) {
-            document.getElementById('chill_protocol_content').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><div><h4 class="font-bold text-gray-800">1. 사전 처방</h4><p><strong>가바펜틴 100mg 캡슐</strong>을 처방하여, 보호자가 병원 방문 1~2시간 전 가정에서 경구 투여하도록 안내합니다.</p></div><div><h4 class="font-bold text-gray-800">2. 원내 프로토콜</h4><p>가바펜틴을 복용한 환자는 <strong class="text-red-600">마취 전 투약 및 유도제 용량이 자동으로 50% 감량</strong>됩니다.</p></div></div>`;
+            document.getElementById('chill_protocol_content').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><div><h4 class="font-bold text-gray-800">1. 사전 처방</h4><p><strong>가바펜틴 100mg 캡슐</strong>을 처방하여, 보호자가 병원 방문 1~2시간 전 가정에서 경구 투여하도록 안내합니다.</p></div><div><h4 class="font-bold text-gray-800">2. 원내 프로토콜</h4><p>가바펜틴을 복용한 환자는 <strong class="text-red-600">마취 전 투약 및 도입마취 용량이 자동으로 50% 감량</strong>됩니다.</p></div></div>`;
         }
 
+        // 너브 블락 및 CRI
         const sitesSelect = document.getElementById('cat_block_sites');
         const sites = sitesSelect ? parseInt(sitesSelect.value) || 4 : 4;
         const total_vol_needed = Math.min(0.3, Math.max(0.1, 0.08 * weight)) * sites;
@@ -363,7 +403,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const cri_rate_ml_hr = weight * 0.3;
         document.getElementById('ketamine_cri_result_cat').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50"><h4 class="font-semibold text-gray-800">CRI 펌프 속도 설정</h4><p class="text-xs text-gray-600">희석: 케타민(50주) 0.6mL + N/S 29.4mL</p><p class="text-sm">목표: 5 mcg/kg/min (0.3 mg/kg/hr)</p><div class="mt-2 text-red-600 font-bold text-xl">${cri_rate_ml_hr.toFixed(2)} mL/hr</div></div>`;
         
-        document.getElementById('workflow_steps_cat').innerHTML = `<div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 1: 내원 및 안정화</h3><p class="text-sm text-gray-700">IV 장착 후, 수액을 연결하고 입원장 내에서 산소를 공급하며 환자를 안정시킵니다. 필요 시 노스판 패치를 미리 부착합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 2: 마취 전 투약</h3><p class="text-sm text-gray-700">산소를 공급하며, 준비된 부토르파놀+미다졸람을 2분에 걸쳐 천천히 IV합니다.</p></div><div class="warning-card p-4"><h3 class="font-bold text-lg text-orange-800">Step 3: 마취 유도 및 케타민 로딩</h3><p class="text-sm text-gray-700">준비된 유도제를 효과를 봐가며 주사하여 삽관 후, 케타민 부하 용량을 1분에 걸쳐 천천히 IV합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 4: 마취 유지</h3><p class="text-sm text-gray-700">호흡마취 및 케타민 CRI 펌프를 작동시키고, 모든 발치/수술 부위에 국소마취를 적용합니다.</p></div>`;
+        // 워크플로우
+        document.getElementById('workflow_steps_cat').innerHTML = `<div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 1: 내원 및 안정화</h3><p class="text-sm text-gray-700">IV 장착 후, 수액을 연결하고 입원장 내에서 산소를 공급하며 환자를 안정시킵니다. 필요 시 노스판 패치를 미리 부착합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 2: 마취 전 투약</h3><p class="text-sm text-gray-700">산소를 공급하며, 준비된 부토르파놀+미다졸람을 2분에 걸쳐 천천히 IV합니다.</p></div><div class="warning-card p-4"><h3 class="font-bold text-lg text-orange-800">Step 3: 도입마취 및 LK 부하</h3><p class="text-sm text-gray-700">준비된 도입마취제를 효과를 봐가며 주사하여 삽관 후, LK 부하 용량을 1분에 걸쳐 천천히 IV합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 4: 마취 유지</h3><p class="text-sm text-gray-700">호흡마취 및 케타민 CRI 펌프를 작동시키고, 모든 발치/수술 부위에 국소마취를 적용합니다.</p></div>`;
     }
     
     function populateEmergencyTab(weight) {
