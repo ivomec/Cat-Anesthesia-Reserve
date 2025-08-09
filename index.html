@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고양이 통합 마취 및 교육 대시보드 v4.3 - 금호동물병원</title>
+    <title>고양이 통합 마취 및 교육 대시보드 v4.4 - 금호동물병원</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -64,7 +64,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.3</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.4</h1>
             <p class="mt-2 text-lg text-gray-600">금호동물병원 실전 워크플로우 (Anes AI & Guardian EDU)</p>
         </header>
 
@@ -329,7 +329,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div id="mirtazapineTab" class="tab-content">
             <div class="card p-6 md:p-8">
                 <header class="text-center mb-10">
@@ -348,13 +348,22 @@
                                 <input type="number" id="petWeightMirtazapine" class="w-full p-2 border-2 border-slate-300 rounded-lg text-center text-xl" placeholder="⚖️ 체중 입력" step="0.1">
                             </div>
                             <div>
-                                <label for="targetDoseMirtazapine" class="font-bold text-gray-700 mb-2 block">2. 목표 용량 (mg/kg):</label>
-                                <input type="number" id="targetDoseMirtazapine" class="w-full p-2 border-2 border-slate-300 rounded-lg text-center text-xl" value="0.5" step="0.1">
+                                <label class="font-bold text-gray-700 mb-2 block">2. 목표 용량 선택 (0.5-1.0 mg/kg):</label>
+                                <div class="flex justify-center gap-x-4 bg-slate-100 p-2 rounded-lg">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" id="mirtazapine_min_dose" name="mirtazapine_dose_option" value="0.5" checked class="h-5 w-5">
+                                        <span class="ml-2 font-semibold">최소 용량 (0.5 mg/kg)</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" id="mirtazapine_max_dose" name="mirtazapine_dose_option" value="1.0" class="h-5 w-5">
+                                        <span class="ml-2 font-semibold">최대 용량 (1.0 mg/kg)</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div id="doseResultMirtazapine" class="p-6 rounded-lg bg-teal-50 border border-teal-200">
-                        <p class="text-gray-700">👆 상단의 체중과 목표 용량을 입력하시면 투여량이 자동 계산됩니다.</p>
+                        <p class="text-gray-700">👆 상단의 체중과 목표 용량을 선택하시면 투여량이 자동 계산됩니다.</p>
                     </div>
                 </section>
                 
