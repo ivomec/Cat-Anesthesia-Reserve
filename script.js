@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
         `;
-        
+
         // 6. 수액 펌프
         const fluidRates = {
             normal: { pre: "2.0 - 3.0", intra: "3.0 - 5.0", post: "즉시 중단", intra_calc_base: 5.0 },
@@ -385,6 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renal: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 },
             liver: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 }
         };
+        
         const renalStatus = document.getElementById('renal_status').value;
         const isLiverIssue = document.getElementById('liverIssue').checked;
         let patientTypeStr = "정상 환자";
@@ -411,12 +412,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rateStr.includes('중단') || rateStr.includes('<')) {
                 settingText = rateStr;
                 targetText = rateStr;
-            } else if (intraBaseRate !== null) {
+            } else if (intraBaseRate !== null) { // 마취 중 시작점 계산
                 const targetValue = (intraBaseRate * weight).toFixed(1);
                 const settingValue = (targetValue / correctionFactor).toFixed(1);
                 settingText = `${settingValue} mL/hr (시작점)`;
                 targetText = `${targetValue} mL/hr`;
-            } else if (rateStr.includes('-')) {
+            } else if (rateStr.includes('-')) { // 범위 계산
                 const [low, high] = rateStr.split(' - ').map(parseFloat);
                 const targetLow = (low * weight).toFixed(1);
                 const targetHigh = (high * weight).toFixed(1);
@@ -424,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const settingHigh = (targetHigh / correctionFactor).toFixed(1);
                 settingText = `${settingLow}~${settingHigh} mL/hr`;
                 targetText = `${targetLow}~${targetHigh} mL/hr`;
-            } else {
+            } else { // 단일 값 계산
                 const rate = parseFloat(rateStr);
                 const targetValue = (rate * weight).toFixed(1);
                 const settingValue = (targetValue / correctionFactor).toFixed(1);
@@ -447,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const fluidHtmlFooter = `<div class="text-xs text-center text-gray-500 mt-2 border-t pt-1">(${patientTypeStr} / 보정계수 ${correctionFactor} 적용)</div>`;
     
         document.getElementById('fluid_result').innerHTML = `${fluidHtmlPre}${fluidHtmlIntra}${fluidHtmlPost}${fluidHtmlFooter}`;
-
+        
         // --- Other sections ---
         // Chill 프로토콜
         document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
@@ -496,9 +497,60 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     function populateEmergencyTab(weight) {
-        const norepiRate = (((weight * 0.1 * 60) / 1000) / (0.3 * 1 / 30));
-        document.getElementById('hypotension_protocol_cat').innerHTML = `<h4 class="font-bold text-lg text-red-800">저혈압 (SBP < 90)</h4><ol class="list-decimal list-inside mt-2 space-y-2 text-sm"><li>호흡 마취제 농도 감소</li><li><span class="text-red-600 font-bold">수액 볼루스 절대 금기!</span> 승압제 사용.</li></ol><div class="mt-2 p-2 rounded-lg bg-red-100"><h5 class="font-semibold text-center text-sm">노르에피네프린 CRI (1차)</h5><p class="text-xs text-center mb-1">희석: 원액 0.3mL + N/S 29.7mL</p><p class="text-center font-bold text-red-700 text-lg">${norepiRate.toFixed(2)} mL/hr <span class="text-sm font-normal">(0.1 mcg/kg/min)</span></p></div>`;
-        document.getElementById('bradycardia_protocol_cat').innerHTML = `<h4 class="font-bold text-lg text-red-800 mt-4">서맥 (Bradycardia)</h4><div class="mt-2 p-2 rounded-lg bg-red-100"><p class="text-center text-red-700 font-bold">아트로핀 금기 (HCM 의심)</p><p class="text-center text-xs text-gray-600">마취 심도 조절 및 원인 교정 우선</p></div>`;
+        // Norepinephrine calculation
+        const norepiRate = weight * 0.6;
+        const norepiRateMax = weight * 12; // 2 mcg/kg/min = 20 * 0.1 mcg/kg/min rate
+    
+        // Hypotension Protocol HTML
+        document.getElementById('hypotension_protocol_cat').innerHTML = `
+        <h3 class="font-bold text-lg text-red-800 mb-2">저혈압 대처 프로토콜</h3>
+        <div class="space-y-3 text-sm text-left">
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-1">1. 저혈압 판단 기준</h4>
+                <ul class="list-disc list-inside space-y-1 pl-2 text-xs">
+                    <li><strong>핵심 지표:</strong> 평균 동맥압(MAP) &lt; 60 mmHg</li>
+                    <li><strong>보조 지표:</strong> 수축기 혈압(SBP) &lt; 90 mmHg</li>
+                    <li><strong>시간 기준:</strong> 마취제 감량 후 3-5분 이상 지속 시 약물 개입</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold text-gray-800 mb-1">2. 단계별 대응 프로토콜</h4>
+                <ol class="list-decimal list-inside space-y-1 pl-2 text-xs">
+                    <li><strong>즉각 조치:</strong> Isoflurane 농도 0.2~0.5% 즉시 감량</li>
+                    <li><strong>원인 평가 (1-3분):</strong> 혈압 회복 관찰, 다른 원인 확인</li>
+                    <li><strong>약물 개입:</strong> 저혈압 지속 시 아래 NE CRI 시작</li>
+                </ol>
+            </div>
+            <div class="p-3 rounded-lg bg-red-100 border border-red-300 mt-2">
+                <h4 class="font-bold text-md text-center text-red-800 mb-2">고양이 NE CRI 프로토콜</h4>
+                <p class="text-center font-bold text-red-600 text-base mb-3 p-2 bg-white rounded-md">🚨 수액 볼루스 절대 금기! 승압제 사용!</p>
+                
+                <div class="bg-white p-2 rounded-lg mb-3">
+                    <h5 class="font-semibold text-center text-sm">펌프 설정 간편 계산식</h5>
+                    <p class="text-center font-bold text-red-700 text-2xl">${norepiRate.toFixed(2)} mL/hr</p>
+                    <p class="text-xs text-center font-semibold">(환자 체중 × 0.6)</p>
+                </div>
+                
+                <div class="text-xs space-y-1">
+                    <p><strong>희석 방법:</strong> NE 원액(1mg/mL) 0.3mL + N/S 29.7mL</p>
+                    <p><strong>시작 용량:</strong> 0.1 mcg/kg/min (위 계산값)</p>
+                    <p><strong>최대 용량:</strong> 2.0 mcg/kg/min (펌프 설정: ${norepiRateMax.toFixed(2)} mL/hr)</p>
+                    <p><strong>목표 혈압:</strong> MAP ≥ 65 mmHg, SBP ≥ 90 mmHg</p>
+                    <p><strong>용량 조절:</strong> 5-10분 간격으로 혈압 확인하며 10-20%씩 증감</p>
+                </div>
+            </div>
+        </div>
+        `;
+    
+        // Bradycardia Protocol HTML
+        document.getElementById('bradycardia_protocol_cat').innerHTML = `
+            <h3 class="font-bold text-lg text-red-800 mt-4">서맥 (Bradycardia)</h3>
+            <div class="mt-2 p-2 rounded-lg bg-red-100">
+                <p class="text-center text-red-700 font-bold">아트로핀 금기 (HCM 의심)</p>
+                <p class="text-center text-xs text-gray-600">마취 심도 조절 및 원인 교정 우선</p>
+            </div>`;
+    
+        // CPA Protocol Calculations and HTML
         const epiLowMl = (0.01 * weight) / (concentrations_cat.epinephrine / 10);
         const vasoMl = (0.8 * weight) / concentrations_cat.vasopressin;
         const atropineCpaMl = (0.04 * weight) / concentrations_cat.atropine;
