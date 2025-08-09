@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고양이 통합 마취 및 교육 대시보드 v4.4 - 금호동물병원</title>
+    <title>고양이 통합 마취 및 교육 대시보드 v4.1 - 금호동물병원</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -64,7 +64,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.4</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.1</h1>
             <p class="mt-2 text-lg text-gray-600">금호동물병원 실전 워크플로우 (Anes AI & Guardian EDU)</p>
         </header>
 
@@ -132,7 +132,6 @@
                 <button class="tab-button" onclick="openTab(event, 'etTubeTab')"><i class="fa-solid fa-staff-snake mr-2"></i>ET Tube</button>
                 <button class="tab-button" onclick="openTab(event, 'emergencyTab')"><i class="fas fa-heart-pulse mr-2"></i>응급상황 대처</button>
                 <button class="tab-button" onclick="openTab(event, 'dischargeTab')"><i class="fas fa-file-prescription mr-2"></i>퇴원약 조제</button>
-                <button class="tab-button" onclick="openTab(event, 'mirtazapineTab')"><i class="fas fa-utensils mr-2"></i>머타자핀 조제</button>
                 <button class="tab-button" onclick="openTab(event, 'stomatitisTab')"><i class="fas fa-tooth mr-2"></i>만성 구내염 안내</button>
                 <button class="tab-button" onclick="openTab(event, 'cyclosporineTab')"><i class="fas fa-pills mr-2"></i>사이클로스포린 안내</button>
                 <button class="tab-button" onclick="openTab(event, 'gabapentinTab')"><i class="fas fa-capsules mr-2"></i>가바펜틴 안내</button>
@@ -327,59 +326,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <div id="mirtazapineTab" class="tab-content">
-            <div class="card p-6 md:p-8">
-                <header class="text-center mb-10">
-                    <h1 class="text-3xl sm:text-4xl font-extrabold mb-2" style="background: linear-gradient(135deg, #38b2ac 0%, #3182ce 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
-                        <i class="fas fa-prescription-bottle-alt"></i> 머타자핀 조제 및 용량 계산기
-                    </h1>
-                    <p class="text-slate-500 text-lg">스태프용: 현탁액 조제 및 정확한 용량 계산</p>
-                </header>
-
-                <section class="mb-12">
-                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">계산기</h2>
-                    <div class="card p-6 border-2 border-teal-100 rounded-lg shadow-lg mb-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 items-center">
-                            <div>
-                                <label for="petWeightMirtazapine" class="font-bold text-gray-700 mb-2 block">1. 환자 체중 (kg):</label>
-                                <input type="number" id="petWeightMirtazapine" class="w-full p-2 border-2 border-slate-300 rounded-lg text-center text-xl" placeholder="⚖️ 체중 입력" step="0.1">
-                            </div>
-                             <div>
-                                <label class="font-bold text-gray-700 mb-2 block">2. 목표 용량 선택 (0.5-1.0 mg/kg):</label>
-                                <div class="flex justify-center gap-x-4 bg-slate-100 p-2 rounded-lg">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" id="mirtazapine_min_dose" name="mirtazapine_dose_option" value="0.5" checked class="h-5 w-5">
-                                        <span class="ml-2 font-semibold">최소 용량 (0.5 mg/kg)</span>
-                                    </label>
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" id="mirtazapine_max_dose" name="mirtazapine_dose_option" value="1.0" class="h-5 w-5">
-                                        <span class="ml-2 font-semibold">최대 용량 (1.0 mg/kg)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="doseResultMirtazapine" class="p-6 rounded-lg bg-teal-50 border border-teal-200">
-                        <p class="text-gray-700">👆 상단의 체중과 목표 용량을 선택하시면 투여량이 자동 계산됩니다.</p>
-                    </div>
-                </section>
-                
-                <section class="mb-12">
-                    <h2 class="text-2xl font-bold text-teal-700 border-l-4 border-teal-500 pl-4 mb-6">액상 현탁액 조제 가이드 (1.875 mg/mL)</h2>
-                     <div class="bg-gray-50 p-6 rounded-lg border">
-                        <ol class="list-decimal list-inside space-y-3">
-                            <li><strong>준비물:</strong> 레메론정 15mg 1알, 10mL 주사기, 증류수 또는 생리식염수 8mL, 차광 약병</li>
-                            <li><strong>용해:</strong> 10mL 주사기에 <strong>레메론 15mg 1알</strong>을 넣고, **증류수 8mL**를 정확히 채웁니다.</li>
-                            <li><strong>혼합:</strong> 주사기 입구를 막고 약이 완전히 녹아 뿌연 현탁액이 될 때까지 충분히 흔들어줍니다.</li>
-                            <li><strong>보관:</strong> 조제한 현탁액을 차광 약병에 옮겨 담고 라벨링 후, <strong>냉장 보관</strong>합니다.</li>
-                            <li class="font-bold text-red-600"><strong>유효기간:</strong> 안전하게 3~4일 간격으로 폐기하고 새로 조제하여 사용합니다.</li>
-                            <li class="font-bold"><strong>투여 시:</strong> 보호자에게 지급하기 전, 그리고 보호자가 투여하기 직전에 반드시 잘 흔들도록 교육합니다.</li>
-                        </ol>
-                    </div>
-                </section>
             </div>
         </div>
 
