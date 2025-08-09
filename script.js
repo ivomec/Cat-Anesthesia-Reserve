@@ -31,10 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('petWeightCyclo')?.addEventListener('input', calculateCycloDose);
         document.getElementById('durationCyclo')?.addEventListener('input', calculateCycloDose);
 
-        // 머타자핀 탭
-        document.getElementById('petWeightMirtazapine')?.addEventListener('input', calculateMirtazapineDose);
-        document.querySelectorAll('input[name="mirtazapine_dose_option"]').forEach(radio => radio.addEventListener('change', calculateMirtazapineDose));
-
         // 노스판 탭
         const attachDateEl = document.getElementById('attachDate');
         const attachTimeEl = document.getElementById('attachTime');
@@ -278,10 +274,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('petWeightCyclo').value = '';
                 calculateCycloDose();
             }
-            if (document.getElementById('petWeightMirtazapine')) {
-                document.getElementById('petWeightMirtazapine').value = '';
-                calculateMirtazapineDose();
-            }
             calculateDischargeMeds(); 
             return;
         }
@@ -293,10 +285,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if(document.getElementById('petWeightCyclo')) {
             document.getElementById('petWeightCyclo').value = weight;
             calculateCycloDose();
-        }
-        if(document.getElementById('petWeightMirtazapine')) {
-            document.getElementById('petWeightMirtazapine').value = weight;
-            calculateMirtazapineDose();
         }
         
         populatePrepTab(weight);
@@ -479,43 +467,6 @@ document.addEventListener('DOMContentLoaded', function () {
             htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200"><p class="text-lg"><strong><i class="fa-solid fa-calendar-check"></i> 총 필요 용량 (${duration}일 기준)</strong></p><p class="text-4xl font-black my-2 text-green-600">${(doseInMl * duration).toFixed(2)} mL</p></div>`;
         }
         doseResultDiv.innerHTML = htmlContent;
-    }
-    
-    // --- 머타자핀 탭 계산기 (스태프용, 용량 선택 기능) ---
-    function calculateMirtazapineDose() {
-        const doseResultDiv = document.getElementById('doseResultMirtazapine');
-        const weight = parseFloat(document.getElementById('petWeightMirtazapine').value);
-        
-        let targetDoseMgKg = 0;
-        const selectedDoseRadio = document.querySelector('input[name="mirtazapine_dose_option"]:checked');
-        if (selectedDoseRadio) {
-            targetDoseMgKg = parseFloat(selectedDoseRadio.value);
-        }
-
-        if (isNaN(weight) || weight <= 0 || isNaN(targetDoseMgKg) || targetDoseMgKg <= 0) {
-            doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 체중과 목표 용량을 선택하시면 투여량이 자동 계산됩니다.</p>';
-            return;
-        }
-
-        const tabletMg = 15;
-        const waterMl = 8;
-        const suspensionConcentration = tabletMg / waterMl; // 1.875 mg/mL
-
-        const totalDoseMg = weight * targetDoseMgKg;
-        const finalVolumeMl = totalDoseMg / suspensionConcentration;
-        
-        doseResultDiv.innerHTML = `
-            <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                <h4 class="font-bold text-lg text-center text-blue-800 mb-3">📋 계산 결과</h4>
-                <div class="text-center space-y-2">
-                    <p><strong>총 투여 용량 (mg):</strong> <span class="text-xl font-bold text-blue-600">${totalDoseMg.toFixed(2)} mg</span></p>
-                    <p><strong>투여할 용액량 (mL):</strong> <span class="text-3xl font-bold text-red-600">${finalVolumeMl.toFixed(2)} mL</span></p>
-                    <p class="text-sm text-gray-600">(조제된 ${suspensionConcentration} mg/mL 현탁액 기준)</p>
-                    <hr class="my-2">
-                    <p><strong>투여 간격:</strong> <span class="font-semibold">매 24시간 (1일 1회)</span></p>
-                </div>
-            </div>
-        `;
     }
 
     // --- 노스판 탭 날짜 계산 ---
