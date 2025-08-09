@@ -317,10 +317,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const propofolMlMin = (2 * weight * inductionFactor) / concentrations_cat.propofol;
         const propofolMlMax = (6 * weight * inductionFactor) / concentrations_cat.propofol;
         
-        const fluidRate = status === 'cardiac' ? 1.5 : 3;
-        const actualTargetRate = fluidRate * weight;
-        const pumpSettingValue = actualTargetRate / 0.7; // Apply 70% efficiency correction
-
         let patchRecommendation = (weight <= 3.0) ? "5 ug/h 패치 적용" : (weight <= 6.0) ? "10 ug/h 패치 적용" : "20 ug/h 패치 적용";
 
         // 1. 예방적 항생제
@@ -382,15 +378,80 @@ document.addEventListener('DOMContentLoaded', function () {
             ${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}
         `;
 
-        // 6. 수액 펌프 (보정 적용)
+        // 6. 수액 펌프
+        const fluidRates = {
+            normal: { pre: "2.0 - 3.0", intra: "3.0 - 5.0", post: "즉시 중단", intra_calc_rate: 3.0 },
+            cardiac: { pre: "1.0 - 1.5", intra: "1.0 - 2.0", post: "< 1.0 또는 중단", intra_calc_rate: 1.0 },
+            renal: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_rate: 2.0 },
+            liver: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_rate: 2.0 }
+        };
+        
+        const renalStatus = document.getElementById('renal_status').value;
+        const isLiverIssue = document.getElementById('liverIssue').checked;
+        
+        let currentRates;
+        // Priority: Cardiac > Renal > Liver > Normal
+        if (status === 'cardiac') {
+            currentRates = fluidRates.cardiac;
+        } else if (renalStatus === 'renal') {
+            currentRates = fluidRates.renal;
+        } else if (isLiverIssue) {
+            currentRates = fluidRates.liver;
+        } else {
+            currentRates = fluidRates.normal;
+        }
+    
+        const calculateMlHrRange = (rateStr, weight) => {
+            if (rateStr.includes('중단')) { return rateStr; }
+            if (!rateStr.includes('-')) {
+                const rate = parseFloat(rateStr);
+                return isNaN(rate) ? rateStr : `${(rate * weight).toFixed(1)}`;
+            }
+            const [low, high] = rateStr.split(' - ').map(parseFloat);
+            return `${(low * weight).toFixed(1)} - ${(high * weight).toFixed(1)}`;
+        };
+    
+        const preRate_kg = currentRates.pre;
+        const intraRate_kg = currentRates.intra;
+        const postRate_kg = currentRates.post;
+    
+        const preRate_ml = calculateMlHrRange(preRate_kg, weight);
+        const intraRate_ml = calculateMlHrRange(intraRate_kg, weight);
+        const postRate_ml = calculateMlHrRange(postRate_kg, weight);
+    
+        const actualTargetRate = currentRates.intra_calc_rate * weight;
+        const pumpSettingValue = actualTargetRate / 0.7;
+    
         document.getElementById('fluid_result').innerHTML = `
-            <div class="font-bold text-lg text-red-600">${pumpSettingValue.toFixed(2)} mL/hr</div>
-            <div class="text-xs text-gray-600 mt-1">
-                (실제 목표: ${actualTargetRate.toFixed(1)} mL/hr)<br>
-                <span class="font-semibold">펌프 효율(70%) 보정됨</span>
+            <div class="text-xs text-left w-full space-y-1">
+                <div class="grid grid-cols-3 gap-1 font-semibold border-b pb-1 mb-1">
+                    <span>단계</span>
+                    <span class="text-center">권장(ml/kg/hr)</span>
+                    <span class="text-right">계산값(mL/hr)</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 items-center">
+                    <span>마취 전</span>
+                    <span class="text-center bg-gray-100 rounded">${preRate_kg}</span>
+                    <span class="text-right font-bold">${preRate_ml}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 items-center text-blue-800">
+                    <span>마취 중</span>
+                    <span class="text-center bg-blue-100 rounded">${intraRate_kg}</span>
+                    <span class="text-right font-bold">${intraRate_ml}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 items-center">
+                    <span>마취 후</span>
+                    <span class="text-center bg-gray-100 rounded">${postRate_kg}</span>
+                    <span class="text-right font-bold">${postRate_ml}</span>
+                </div>
+            </div>
+            <div class="border-t mt-2 pt-1 text-center">
+                <div class="text-sm font-bold text-red-700">펌프 설정값 (마취 중)</div>
+                <div class="font-bold text-xl text-red-600">${pumpSettingValue.toFixed(2)} mL/hr</div>
+                <div class="text-xs text-gray-600">펌프효율(70%) 보정됨</div>
             </div>
         `;
-        
+
         // --- Other sections ---
         // Chill 프로토콜
         document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
