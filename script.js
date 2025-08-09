@@ -399,8 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const final_total_ml = Math.min((1.0 * weight / 5 * 1.25), total_vol_needed);
         document.getElementById('nerve_block_result_cat').innerHTML = `<div class="flex items-center gap-4 mb-4"><label for="cat_block_sites" class="font-semibold text-gray-700">마취 부위 수:</label><select id="cat_block_sites" class="select-field" onchange="calculateAll()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select></div><div class="p-2 border rounded-lg bg-gray-50"><h4 class="font-semibold text-gray-800">총 준비 용량 (${sites}군데)</h4><p class="text-xs text-red-600 font-bold">부피바케인 총량 1.0mg/kg 초과 금지!</p><p><span class="result-value">${(final_total_ml*0.8).toFixed(2)}mL</span> (0.5% 부피) + <span class="result-value">${(final_total_ml*0.2).toFixed(2)}mL</span> (2% 리도)</p></div>`;
         if (document.getElementById('cat_block_sites')) document.getElementById('cat_block_sites').value = sites;
-        
-        // 케타민 CRI 수정된 부분
+
         const cri_rate_min_low = weight * 0.12;
         const cri_rate_min_high = weight * 0.18;
         const cri_rate_std = weight * 0.3;
@@ -564,4 +563,83 @@ document.addEventListener('DOMContentLoaded', function () {
         const doseInMl = (weight * 5) / 100;
         let htmlContent = `<p class="text-lg"><strong><i class="fa-solid fa-syringe"></i> 1일 권장 정량 (${weight}kg 기준)</strong></p><p class="text-4xl font-black my-2 text-indigo-600">${doseInMl.toFixed(2)} mL</p><p class="text-sm text-gray-700">(사이클로스포린 ${(weight * 5).toFixed(1)} mg에 해당)</p>`;
         if (!isNaN(duration) && duration > 0) {
-            htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200
+            htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200"><p class="text-lg"><strong><i class="fa-solid fa-calendar-check"></i> 총 필요 용량 (${duration}일 기준)</strong></p><p class="text-4xl font-black my-2 text-green-600">${(doseInMl * duration).toFixed(2)} mL</p></div>`;
+        }
+        doseResultDiv.innerHTML = htmlContent;
+    }
+
+    // --- 노스판 탭 날짜 계산 ---
+    function calculateRemovalDate() {
+        const dateInput = document.getElementById('attachDate');
+        const timeInput = document.getElementById('attachTime');
+        const removalInfoDiv = document.getElementById('removalInfo');
+        if(!dateInput || !timeInput || !removalInfoDiv) return;
+        if (!dateInput.value || !timeInput.value) { removalInfoDiv.innerHTML = '<p class="font-bold text-yellow-900">날짜와 시간을 입력해주세요.</p>'; return; }
+        const attachDateTime = new Date(`${dateInput.value}T${timeInput.value}`);
+        if (isNaN(attachDateTime.getTime())) { removalInfoDiv.innerHTML = '<p class="font-bold text-red-700">유효한 날짜와 시간을 입력해주세요.</p>'; return; }
+        const removalDateStart = new Date(attachDateTime.getTime() + 72 * 3600 * 1000);
+        const removalDateEnd = new Date(attachDateTime.getTime() + 96 * 3600 * 1000);
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+        removalInfoDiv.innerHTML = `<h4 class="text-lg font-bold text-gray-800 mb-2">🗓️ 패치 제거 권장 기간</h4><p class="text-base text-gray-700"><strong class="text-blue-600">${new Intl.DateTimeFormat('ko-KR', options).format(removalDateStart)}</strong> 부터<br><strong class="text-blue-600">${new Intl.DateTimeFormat('ko-KR', options).format(removalDateEnd)}</strong> 사이에<br>패치를 제거해주세요.</p>`;
+    }
+    
+    // --- ET Tube 탭 계산기 ---
+    const weightSizeGuideCat = [ { weight: 1, size: '2.0' }, { weight: 2, size: '2.5' }, { weight: 3.5, size: '3.0' }, { weight: 4, size: '3.5' }, { weight: 6, size: '4.0' }, { weight: 9, size: '4.5' } ];
+    const tracheaSizeGuideCat = [ { diameter: 5.13, id: '2.5' }, { diameter: 5.88, id: '3.0' }, { diameter: 6.63, id: '3.5' }, { diameter: 7.50, id: '4.0' }, { diameter: 8.13, id: '4.5' }, { diameter: 8.38, id: '5.0' }, { diameter: 9.13, id: '5.5' }, { diameter: 10.00, id: '6.0' }, { diameter: 11.38, id: '6.5' }, { diameter: 11.63, id: '7.0' }, { diameter: 12.50, id: '7.5' }, { diameter: 13.38, id: '8.0' } ];
+
+    function calculateWeightSize() {
+        const weightInput = document.getElementById('weight-input');
+        const resultContainerWeight = document.getElementById('result-container-weight');
+        const resultTextWeight = document.getElementById('result-text-weight');
+        if(!weightInput || !resultContainerWeight || !resultTextWeight) return;
+        
+        const weight = parseFloat(weightInput.value);
+        if (isNaN(weight) || weight <= 0) { resultContainerWeight.classList.add('hidden'); return; }
+        let recommendedSize = '4.5 이상';
+        for (let i = 0; i < weightSizeGuideCat.length; i++) { if (weight <= weightSizeGuideCat[i].weight) { recommendedSize = weightSizeGuideCat[i].size; break; } }
+        resultTextWeight.textContent = recommendedSize;
+        resultContainerWeight.classList.remove('hidden');
+    }
+
+    function calculateTracheaSize() {
+        const tracheaInput = document.getElementById('trachea-input');
+        const resultContainerTrachea = document.getElementById('result-container-trachea');
+        const resultTextTrachea = document.getElementById('result-text-trachea');
+         if(!tracheaInput || !resultContainerTrachea || !resultTextTrachea) return;
+
+        const diameter = parseFloat(tracheaInput.value);
+        if (isNaN(diameter) || diameter <= 0) { resultContainerTrachea.classList.add('hidden'); return; }
+        let recommendedId = '8.0 이상';
+         for (let i = 0; i < tracheaSizeGuideCat.length; i++) { if (diameter <= tracheaSizeGuideCat[i].diameter) { recommendedId = tracheaSizeGuideCat[i].id; break; } }
+        resultTextTrachea.textContent = recommendedId;
+        resultContainerTrachea.classList.remove('hidden');
+    }
+
+    function saveCatEtTubeSelection() {
+        const sizeInput = document.getElementById('cat_selectedEtTubeSize');
+        if (!sizeInput.value) { alert('최종 ET Tube 사이즈를 입력해주세요.'); sizeInput.focus(); return; }
+        selectedCatTubeInfo.size = parseFloat(sizeInput.value);
+        selectedCatTubeInfo.cuff = document.getElementById('cat_selectedEtTubeCuff').checked;
+        selectedCatTubeInfo.notes = document.getElementById('cat_selectedEtTubeNotes').value;
+        const saveButton = document.getElementById('saveCatEtTubeSelection');
+        saveButton.innerHTML = '<i class="fas fa-check-circle mr-2"></i>저장 완료!';
+        saveButton.classList.replace('bg-blue-600', 'bg-green-600');
+        setTimeout(() => {
+            saveButton.innerHTML = '<i class="fas fa-save mr-2"></i>기록 저장';
+            saveButton.classList.replace('bg-green-600', 'bg-blue-600');
+        }, 2000);
+        updateCatTubeDisplay();
+    }
+
+    function updateCatTubeDisplay() {
+        const displayDiv = document.getElementById('cat_et_tube_selection_display');
+        if (!displayDiv) return;
+        if (selectedCatTubeInfo.size) {
+            const cuffStatus = selectedCatTubeInfo.cuff ? '<span class="text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>확인 완료</span>' : '<span class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-1"></i>미확인</span>';
+            const notesText = selectedCatTubeInfo.notes ? `<p class="text-sm text-gray-600 mt-2"><strong>메모:</strong> ${selectedCatTubeInfo.notes}</p>` : '';
+            displayDiv.innerHTML = `<div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-4"><p class="text-lg"><strong>선택된 Tube 사이즈 (ID):</strong> <span class="result-value text-2xl">${selectedCatTubeInfo.size}</span></p><p class="text-lg"><strong>커프(Cuff) 확인:</strong> ${cuffStatus}</p></div>${notesText}`;
+        } else {
+            displayDiv.innerHTML = '<p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. \'ET Tube\' 탭에서 기록해주세요.</p>';
+        }
+    }
+});
