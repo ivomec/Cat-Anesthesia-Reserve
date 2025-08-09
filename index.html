@@ -116,7 +116,18 @@
                         <option value="yes">Chill 프로토콜</option>
                     </select>
                 </div>
-                <div class="lg:col-span-2 p-2 rounded-lg bg-gray-50 border">
+                <div>
+                    <label for="antibiotic_protocol" class="block text-center text-xl font-semibold text-gray-700 mb-2">예방적 항생제</label>
+                    <select id="antibiotic_protocol" class="w-full p-4 text-center text-lg select-field">
+                        <option value="none" selected>선택 안함</option>
+                        <option value="baytril50">바이트릴 50주</option>
+                        <option value="cefronseven">세프론세븐</option>
+                        <option value="baytril25">바이트릴 25주</option>
+                        <option value="baytril50_dexa">바이트릴 50주 & 스테로이드</option>
+                        <option value="cefronseven_dexa">세프론세븐 & 스테로이드</option>
+                    </select>
+                </div>
+                <div class="lg:col-span-1 p-2 rounded-lg bg-gray-50 border">
                     <label class="block text-center text-xl font-semibold text-gray-700 mb-2">특이사항</label>
                      <div class="checkbox-group text-center">
                         <label><input type="checkbox" id="liverIssue" class="w-4 h-4"> 간 이상</label>
