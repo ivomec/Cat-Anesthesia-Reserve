@@ -356,18 +356,38 @@ function populatePrepTab(weight, isCardiac, isKidney, isLiver, isChill) {
     const propofolMlMin = (2 * weight * inductionFactor) / concentrations_cat.propofol;
     const propofolMlMax = (6 * weight * inductionFactor) / concentrations_cat.propofol;
     
-    // ... (populatePrepTab의 나머지 모든 계산 로직)
+    let patchRecommendation = (weight <= 3.0) ? "5 ug/h" : (weight <= 6.0) ? "10 ug/h" : "20 ug/h";
+    
+    const antibioticProtocol = document.getElementById('antibiotic_protocol').value;
+    let antibioticResultHtml = 'N/A';
+    switch (antibioticProtocol) {
+        case 'baytril50': antibioticResultHtml = `${(weight * 0.05).toFixed(2)} mL`; break;
+        case 'cefronseven': antibioticResultHtml = `${(weight * 0.05).toFixed(2)} mL`; break;
+        case 'baytril25': antibioticResultHtml = `${(weight * 0.1).toFixed(2)} mL`; break;
+        case 'baytril50_dexa': antibioticResultHtml = `<span class="text-sm">바이트릴: ${(weight * 0.05).toFixed(2)} mL<br>덱사: ${(weight * 0.1).toFixed(2)} mL</span>`; break;
+        case 'cefronseven_dexa': antibioticResultHtml = `<span class="text-sm">세프론세븐: ${(weight * 0.05).toFixed(2)} mL<br>덱사: ${(weight * 0.1).toFixed(2)} mL</span>`; break;
+        case 'none': antibioticResultHtml = '선택 안함'; break;
+    }
+    document.getElementById('antibiotic_result').innerHTML = antibioticResultHtml;
+    
+    document.getElementById('patch_result').innerHTML = `${patchRecommendation} 패치 적용`;
+    document.getElementById('premed_result').innerHTML = `<span class="font-bold">${butorMl.toFixed(2)} mL</span> 부토르파놀<br><span class="font-bold">${midaMl.toFixed(2)} mL</span> 미다졸람 ${isChill ? '<br><span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}`;
+    document.getElementById('loading_dose_result').innerHTML = `<span class="font-bold">${lidoMl.toFixed(2)} mL</span> 리도카인<br><span class="font-bold">${ketaLoadMl.toFixed(2)} mL</span> 케타민(희석)<br><span class="text-xs text-gray-600 font-semibold">※ 케타민(50주) 0.2mL + N/S 0.8mL</span>`;
+    let alfaxanHighlightClass = isCardiac ? 'highlight-recommend' : '';
+    document.getElementById('induction_result').innerHTML = `<div class="${alfaxanHighlightClass} p-1 rounded-md">알팍산: <span class="font-bold">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span></div><div>프로포폴: <span class="font-bold">${propofolMlMin.toFixed(2)}~${propofolMlMax.toFixed(2)} mL</span><span class="text-xs text-gray-600 block">(2-6 mg/kg)</span></div>${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}`;
+    
+    // ... (나머지 populatePrepTab 로직)
 }
 
 function populateEmergencyTab(weight) {
     const norepiRate = weight * 0.6;
     const norepiRateMax = weight * 12;
-    document.getElementById('hypotension_protocol_cat').innerHTML = `<h3 class="font-bold text-lg text-red-800 mb-2">저혈압 대처 프로토콜</h3>...`; // 내용 복원
-    document.getElementById('bradycardia_protocol_cat').innerHTML = `<h3 class="font-bold text-lg text-red-800 mt-4">서맥 (Bradycardia)</h3>...`; // 내용 복원
+    document.getElementById('hypotension_protocol_cat').innerHTML = `<h3 class="font-bold text-lg text-red-800 mb-2">저혈압 대처 프로토콜</h3><div class="space-y-3 text-sm text-left"><div><h4 class="font-semibold text-gray-800 mb-1">1. 저혈압 판단 기준</h4><ul class="list-disc list-inside space-y-1 pl-2 text-xs"><li><strong>핵심 지표:</strong> 평균 동맥압(MAP) &lt; 60 mmHg</li><li><strong>보조 지표:</strong> 수축기 혈압(SBP) &lt; 90 mmHg</li><li><strong>시간 기준:</strong> 마취제 감량 후 3-5분 이상 지속 시 약물 개입</li></ul></div><div><h4 class="font-semibold text-gray-800 mb-1">2. 단계별 대응 프로토콜</h4><ol class="list-decimal list-inside space-y-1 pl-2 text-xs"><li><strong>즉각 조치:</strong> Isoflurane 농도 0.2~0.5% 즉시 감량</li><li><strong>원인 평가 (1-3분):</strong> 혈압 회복 관찰, 다른 원인 확인</li><li><strong>약물 개입:</strong> 저혈압 지속 시 아래 NE CRI 시작</li></ol></div><div class="p-3 rounded-lg bg-red-100 border border-red-300 mt-2"><h4 class="font-bold text-md text-center text-red-800 mb-2">고양이 NE CRI 프로토콜</h4><p class="text-center font-bold text-red-600 text-base mb-3 p-2 bg-white rounded-md">🚨 수액 볼루스 절대 금기! 승압제 사용!</p><div class="bg-white p-2 rounded-lg mb-3"><h5 class="font-semibold text-center text-sm">펌프 설정 간편 계산식</h5><p class="text-center font-bold text-red-700 text-2xl">${norepiRate.toFixed(2)} mL/hr</p><p class="text-xs text-center font-semibold">(환자 체중 × 0.6)</p></div><div class="text-xs space-y-1"><p><strong>희석 방법:</strong> NE 원액(1mg/mL) 0.3mL + N/S 29.7mL</p><p><strong>시작 용량:</strong> 0.1 mcg/kg/min (위 계산값)</p><p><strong>최대 용량:</strong> 2.0 mcg/kg/min (펌프 설정: ${norepiRateMax.toFixed(2)} mL/hr)</p><p><strong>목표 혈압:</strong> MAP ≥ 65 mmHg, SBP ≥ 90 mmHg</p><p><strong>용량 조절:</strong> 5-10분 간격으로 혈압 확인하며 10-20%씩 증감</p></div></div></div>`;
+    document.getElementById('bradycardia_protocol_cat').innerHTML = `<h3 class="font-bold text-lg text-red-800 mt-4">서맥 (Bradycardia)</h3><div class="mt-2 p-2 rounded-lg bg-red-100"><p class="text-center text-red-700 font-bold">아트로핀 금기 (HCM 의심)</p><p class="text-center text-xs text-gray-600">마취 심도 조절 및 원인 교정 우선</p></div>`;
     const epiLowMl = (0.01 * weight) / (concentrations_cat.epinephrine / 10);
     const vasoMl = (0.8 * weight) / concentrations_cat.vasopressin;
     const atropineCpaMl = (0.04 * weight) / concentrations_cat.atropine;
-    document.getElementById('cpa_protocol_cat').innerHTML = `...<p>${epiLowMl.toFixed(2)} mL (희석액) IV</p>...<p>${vasoMl.toFixed(2)} mL IV</p>...<p>${atropineCpaMl.toFixed(2)} mL IV</p>...`; // 내용 및 계산 결과 복원
+    document.getElementById('cpa_protocol_cat').innerHTML = `<div class="info-box mb-2 text-xs"><p><strong>핵심 개념:</strong> BLS는 '엔진'을 계속 돌려주는 역할이고, ALS는 '엔진을 수리'하는 역할입니다. 고품질의 BLS 없이는 ALS가 성공할 수 없습니다.</p></div><h4 class="font-bold text-md text-gray-800 mt-3">1. BLS (기본소생술)</h4><ul class="list-disc list-inside text-sm space-y-1 mt-1"><li><strong>순환:</strong> 분당 100-120회 속도로 흉곽 1/3 깊이 압박 (2분마다 교대)</li><li><strong>기도확보:</strong> 즉시 기관 삽관</li><li><strong>호흡:</strong> 6초에 1회 인공 환기 (과환기 금지)</li></ul><h4 class="font-bold text-md text-gray-800 mt-3">2. ALS (전문소생술)</h4><div class="mt-2 p-2 rounded-lg bg-red-100 space-y-2"><h5 class="font-semibold text-sm">에피네프린 (Low dose)</h5><p class="text-xs text-center mb-1 font-semibold">희석: 원액 0.1mL + N/S 0.9mL</p><p class="text-center font-bold text-red-700">${epiLowMl.toFixed(2)} mL (희석액) IV</p><hr><h5 class="font-semibold text-sm">바소프레신 (대체 가능)</h5><p class="text-center font-bold text-red-700">${vasoMl.toFixed(2)} mL IV</p><hr><h5 class="font-semibold text-sm">아트로핀 (Vagal arrest 의심 시)</h5><p class="text-center font-bold text-red-700">${atropineCpaMl.toFixed(2)} mL IV</p></div>`;
 }
     
 // --- 퇴원약 탭 기능 (복원된 전체 코드) ---
@@ -387,7 +407,6 @@ function calculateDischargeMeds() {
          document.querySelectorAll('#dischargeTab .total-amount').forEach(el => el.textContent = '');
          return;
     }
-
     const summaryData = {};
     document.querySelectorAll('#dischargeTab .med-checkbox:checked').forEach(checkbox => {
         const row = checkbox.closest('tr');
@@ -400,16 +419,13 @@ function calculateDischargeMeds() {
 
         if (row.dataset.special === 'vetrocam') {
             dailyMultiplier = 1;
-            const day1Dose = weight * 0.2;
-            const otherDaysDose = weight * 0.1 * (days > 1 ? days - 1 : 0);
-            totalAmount = day1Dose + otherDaysDose;
+            totalAmount = weight * 0.2 + weight * 0.1 * Math.max(0, days - 1);
             totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
         } else if (row.dataset.special === 'same') {
             dailyMultiplier = 1;
             totalAmount = (weight / 2.5) * 0.25 * days;
             totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
         } else if (row.dataset.special === 'paramel') {
-             dailyMultiplier = 2;
              const dose = 0.75;
              totalAmount = weight * dose * dailyMultiplier * days;
              totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
@@ -424,17 +440,13 @@ function calculateDischargeMeds() {
             }
         }
         row.querySelector('.total-amount').textContent = totalAmountText;
-
         if (!summaryData[days]) summaryData[days] = [];
         let summaryText = `${drugName.split(' (')[0]} ${totalAmountText}`;
         if (dailyMultiplier === 1) summaryText += ' (1일 1회)';
-        
         const isLiverDanger = row.querySelector('.notes').dataset.liver === 'true' && document.getElementById('statusLiver').checked;
         const isKidneyDanger = row.querySelector('.notes').dataset.kidney === 'true' && document.getElementById('statusKidney').checked;
-
         summaryData[days].push({ text: summaryText, isDanger: isLiverDanger || isKidneyDanger });
     });
-
     updateSummaryUI(summaryData);
     updateDischargeWarnings();
 }
