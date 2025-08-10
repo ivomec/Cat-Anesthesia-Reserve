@@ -3,7 +3,6 @@ const concentrations_cat = {
     butorphanol: 10, midazolam: 5, propofol: 10, alfaxalone: 10, ketamine: 50, ketamine_diluted: 10, bupivacaine: 5, lidocaine: 20,
     meloxicam_inj: 2, atropine: 0.5, norepinephrine_raw: 1, epinephrine: 1, vasopressin: 20, meloxicam_oral: 0.5, dexmedetomidine: 0.5
 };
-const pillStrengths_cat = { gabapentin: 100, amoxicillin_capsule: 250, famotidine: 10 };
 let selectedCatTubeInfo = { size: null, cuff: false, notes: '' };
 let isDirty = false; // 저장되지 않은 변경사항을 추적하기 위한 플래그
 
@@ -376,7 +375,21 @@ function populatePrepTab(weight, isCardiac, isKidney, isLiver, isChill) {
     let alfaxanHighlightClass = isCardiac ? 'highlight-recommend' : '';
     document.getElementById('induction_result').innerHTML = `<div class="${alfaxanHighlightClass} p-1 rounded-md">알팍산: <span class="font-bold">${alfaxanMlMin.toFixed(2)}~${alfaxanMlMax.toFixed(2)} mL</span></div><div>프로포폴: <span class="font-bold">${propofolMlMin.toFixed(2)}~${propofolMlMax.toFixed(2)} mL</span><span class="text-xs text-gray-600 block">(2-6 mg/kg)</span></div>${isChill ? '<span class="text-xs text-red-600 font-bold">※ Chill 50% 감량</span>' : ''}`;
     
-    // ... (나머지 populatePrepTab 로직)
+    const fluidRates = { normal: { pre: "2.0 - 3.0", intra: "3.0 - 5.0", post: "즉시 중단", intra_calc_base: 5.0 }, cardiac: { pre: "1.0 - 1.5", intra: "1.0 - 2.0", post: "< 1.0 또는 중단", intra_calc_base: 2.0 }, renal: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 }, liver: { pre: "2.0 - 3.0", intra: "2.0 - 4.0", post: "2.0 - 3.0", intra_calc_base: 4.0 } };
+    let patientTypeStr = "정상 환자"; let currentRates;
+    if (isCardiac) { currentRates = fluidRates.cardiac; patientTypeStr = "심장 질환"; } else if (isKidney) { currentRates = fluidRates.renal; patientTypeStr = "신장 질환"; } else if (isLiver) { currentRates = fluidRates.liver; patientTypeStr = "간 질환"; } else { currentRates = fluidRates.normal; }
+    const correctionFactor = 0.7;
+    const generateStageHtml = (label, rateStr, weight, intraBaseRate = null) => { let settingText, targetText; if (rateStr.includes('중단') || rateStr.includes('<')) { settingText = rateStr; targetText = rateStr; } else if (intraBaseRate !== null) { const targetValue = (intraBaseRate * weight).toFixed(1); const settingValue = (targetValue / correctionFactor).toFixed(1); settingText = `${settingValue} mL/hr (시작점)`; targetText = `${targetValue} mL/hr`; } else if (rateStr.includes('-')) { const [low, high] = rateStr.split(' - ').map(parseFloat); const targetLow = (low * weight).toFixed(1); const targetHigh = (high * weight).toFixed(1); const settingLow = (targetLow / correctionFactor).toFixed(1); const settingHigh = (targetHigh / correctionFactor).toFixed(1); settingText = `${settingLow}~${settingHigh} mL/hr`; targetText = `${targetLow}~${targetHigh} mL/hr`; } else { const rate = parseFloat(rateStr); const targetValue = (rate * weight).toFixed(1); const settingValue = (targetValue / correctionFactor).toFixed(1); settingText = `${settingValue} mL/hr`; targetText = `${targetValue} mL/hr`; } return `<div class="mb-2"><div class="text-sm font-bold">${label}</div><div class="font-bold text-lg text-red-600">${settingText}</div><div class="text-xs text-gray-600">(목표: ${targetText})</div></div>`; };
+    document.getElementById('fluid_result').innerHTML = `${generateStageHtml('마취 전', currentRates.pre, weight)}${generateStageHtml('마취 중', currentRates.intra, weight, currentRates.intra_calc_base)}${generateStageHtml('마취 후', currentRates.post, weight)}<div class="text-xs text-center text-gray-500 mt-2 border-t pt-1">(${patientTypeStr} / 보정계수 ${correctionFactor} 적용)</div>`;
+    
+    document.getElementById('chill_protocol_info_card').style.display = isChill ? 'block' : 'none';
+    if (isChill) {
+        document.getElementById('chill_protocol_content').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><div><h4 class="font-bold text-gray-800">1. 사전 처방</h4><p><strong>가바펜틴 100mg 캡슐</strong>을 처방하여, 보호자가 병원 방문 1~2시간 전 가정에서 경구 투여하도록 안내합니다.</p></div><div><h4 class="font-bold text-gray-800">2. 원내 프로토콜</h4><p>가바펜틴을 복용한 환자는 <strong class="text-red-600">마취 전 투약 및 도입마취 용량이 자동으로 50% 감량</strong>됩니다.</p></div></div>`;
+    }
+
+    const sitesSelect = document.getElementById('cat_block_sites'); const sites = sitesSelect ? parseInt(sitesSelect.value) || 4 : 4; const total_vol_needed = Math.min(0.3, Math.max(0.1, 0.08 * weight)) * sites; const final_total_ml = Math.min((1.0 * weight / 5 * 1.25), total_vol_needed); document.getElementById('nerve_block_result_cat').innerHTML = `<div class="flex items-center gap-4 mb-4"><label for="cat_block_sites" class="font-semibold text-gray-700">마취 부위 수:</label><select id="cat_block_sites" class="select-field" onchange="calculateAll()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option></select></div><div class="p-2 border rounded-lg bg-gray-50"><h4 class="font-semibold text-gray-800">총 준비 용량 (${sites}군데)</h4><p class="text-xs text-red-600 font-bold">부피바케인 총량 1.0mg/kg 초과 금지!</p><p><span class="result-value">${(final_total_ml*0.8).toFixed(2)}mL</span> (0.5% 부피) + <span class="result-value">${(final_total_ml*0.2).toFixed(2)}mL</span> (2% 리도)</p></div>`; if (document.getElementById('cat_block_sites')) document.getElementById('cat_block_sites').value = sites;
+    const cri_rate_min_low = weight * 0.12; const cri_rate_min_high = weight * 0.18; const cri_rate_std = weight * 0.3; const cri_rate_max = weight * 0.6; document.getElementById('ketamine_cri_result_cat').innerHTML = `<div class="p-4 border rounded-lg bg-gray-50 space-y-3"><h4 class="font-semibold text-gray-800 text-center">CRI 펌프 속도 설정</h4><p class="text-xs text-center text-gray-600">※ 희석: 케타민(50주) 0.6mL + N/S 29.4mL</p><div class="space-y-2 text-sm"><div class="grid grid-cols-2 items-center p-2 bg-blue-100 rounded-lg"><div class="font-semibold text-blue-800">최소 (2-3 mcg/kg/min)</div><div class="font-bold text-blue-700 text-right text-base">${cri_rate_min_low.toFixed(2)} ~ ${cri_rate_min_high.toFixed(2)} mL/hr</div></div><div class="grid grid-cols-2 items-center p-2 bg-green-100 rounded-lg"><div class="font-semibold text-green-800">표준 (5 mcg/kg/min)</div><div class="font-bold text-green-700 text-right text-base">${cri_rate_std.toFixed(2)} mL/hr</div></div><div class="grid grid-cols-2 items-center p-2 bg-orange-100 rounded-lg"><div class="font-semibold text-orange-800">최대 (10 mcg/kg/min)</div><div class="font-bold text-orange-700 text-right text-base">${cri_rate_max.toFixed(2)} mL/hr</div></div></div><div class="text-xs text-gray-700 border-t border-gray-200 pt-2 mt-2 space-y-1"><p><strong class="text-red-500">HCM 환자:</strong> 심박수 증가 효과/사용에 신중</p><p><strong class="text-red-500">CKD 환자:</strong> 최소 유효 속도(2-3 mcg/kg/min)로 시작하는 것을 고려</p></div></div>`;
+    document.getElementById('workflow_steps_cat').innerHTML = `<div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 1: 내원 및 안정화</h3><p class="text-sm text-gray-700">IV 장착 후, 수액을 연결하고 입원장 내에서 산소를 공급하며 환자를 안정시킵니다. 필요 시 노스판 패치를 미리 부착합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 2: 마취 전 투약</h3><p class="text-sm text-gray-700">산소를 공급하며, 준비된 부토르파놀+미다졸람을 2분에 걸쳐 천천히 IV합니다.</p></div><div class="warning-card p-4"><h3 class="font-bold text-lg text-orange-800">Step 3: 도입마취 및 LK 부하</h3><p class="text-sm text-gray-700">준비된 도입마취제를 효과를 봐가며 주사하여 삽관 후, LK 부하 용량을 1분에 걸쳐 천천히 IV합니다.</p></div><div class="step-card p-4"><h3 class="font-bold text-lg text-indigo-800">Step 4: 마취 유지</h3><p class="text-sm text-gray-700">호흡마취 및 케타민 CRI 펌프를 작동시키고, 모든 발치/수술 부위에 국소마취를 적용합니다.</p></div>`;
 }
 
 function populateEmergencyTab(weight) {
@@ -407,6 +420,7 @@ function calculateDischargeMeds() {
          document.querySelectorAll('#dischargeTab .total-amount').forEach(el => el.textContent = '');
          return;
     }
+
     const summaryData = {};
     document.querySelectorAll('#dischargeTab .med-checkbox:checked').forEach(checkbox => {
         const row = checkbox.closest('tr');
@@ -487,10 +501,63 @@ function updateDischargeWarnings() {
 }
 
 // --- ET Tube 탭 계산기 ---
-function calculateWeightSize() { /*...*/ }
-function calculateTracheaSize() { /*...*/ }
-function saveCatEtTubeSelection() { /*...*/ }
-function updateCatTubeDisplay() { /*...*/ }
+const weightSizeGuideCat = [ { weight: 1, size: '2.0' }, { weight: 2, size: '2.5' }, { weight: 3.5, size: '3.0' }, { weight: 4, size: '3.5' }, { weight: 6, size: '4.0' }, { weight: 9, size: '4.5' } ];
+const tracheaSizeGuideCat = [ { diameter: 5.13, id: '2.5' }, { diameter: 5.88, id: '3.0' }, { diameter: 6.63, id: '3.5' }, { diameter: 7.50, id: '4.0' }, { diameter: 8.13, id: '4.5' }, { diameter: 8.38, id: '5.0' }, { diameter: 9.13, id: '5.5' }, { diameter: 10.00, id: '6.0' }, { diameter: 11.38, id: '6.5' }, { diameter: 11.63, id: '7.0' }, { diameter: 12.50, id: '7.5' }, { diameter: 13.38, id: '8.0' } ];
+
+function calculateWeightSize() {
+    const weightInput = document.getElementById('weight-input');
+    const resultContainerWeight = document.getElementById('result-container-weight');
+    const resultTextWeight = document.getElementById('result-text-weight');
+    if(!weightInput || !resultContainerWeight || !resultTextWeight) return;
+    const weight = parseFloat(weightInput.value);
+    if (isNaN(weight) || weight <= 0) { resultContainerWeight.classList.add('hidden'); return; }
+    let recommendedSize = '4.5 이상';
+    for (let i = 0; i < weightSizeGuideCat.length; i++) { if (weight <= weightSizeGuideCat[i].weight) { recommendedSize = weightSizeGuideCat[i].size; break; } }
+    resultTextWeight.textContent = recommendedSize;
+    resultContainerWeight.classList.remove('hidden');
+}
+
+function calculateTracheaSize() {
+    const tracheaInput = document.getElementById('trachea-input');
+    const resultContainerTrachea = document.getElementById('result-container-trachea');
+    const resultTextTrachea = document.getElementById('result-text-trachea');
+    if(!tracheaInput || !resultContainerTrachea || !resultTextTrachea) return;
+    const diameter = parseFloat(tracheaInput.value);
+    if (isNaN(diameter) || diameter <= 0) { resultContainerTrachea.classList.add('hidden'); return; }
+    let recommendedId = '8.0 이상';
+    for (let i = 0; i < tracheaSizeGuideCat.length; i++) { if (diameter <= tracheaSizeGuideCat[i].diameter) { recommendedId = tracheaSizeGuideCat[i].id; break; } }
+    resultTextTrachea.textContent = recommendedId;
+    resultContainerTrachea.classList.remove('hidden');
+}
+
+function saveCatEtTubeSelection() {
+    isDirty = true;
+    const sizeInput = document.getElementById('cat_selectedEtTubeSize');
+    if (!sizeInput.value) { alert('최종 ET Tube 사이즈를 입력해주세요.'); sizeInput.focus(); return; }
+    selectedCatTubeInfo.size = parseFloat(sizeInput.value);
+    selectedCatTubeInfo.cuff = document.getElementById('cat_selectedEtTubeCuff').checked;
+    selectedCatTubeInfo.notes = document.getElementById('cat_selectedEtTubeNotes').value;
+    const saveButton = document.getElementById('saveCatEtTubeSelection');
+    saveButton.innerHTML = '<i class="fas fa-check-circle mr-2"></i>저장 완료!';
+    saveButton.classList.replace('bg-blue-600', 'bg-green-600');
+    setTimeout(() => {
+        saveButton.innerHTML = '<i class="fas fa-save mr-2"></i>기록 저장';
+        saveButton.classList.replace('bg-green-600', 'bg-blue-600');
+    }, 2000);
+    updateCatTubeDisplay();
+}
+
+function updateCatTubeDisplay() {
+    const displayDiv = document.getElementById('cat_et_tube_selection_display');
+    if (!displayDiv) return;
+    if (selectedCatTubeInfo.size) {
+        const cuffStatus = selectedCatTubeInfo.cuff ? `<span class="text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>확인 완료</span>` : `<span class="text-red-600 font-semibold"><i class="fas fa-times-circle mr-1"></i>미확인</span>`;
+        const notesText = selectedCatTubeInfo.notes ? `<p class="text-sm text-gray-600 mt-2"><strong>메모:</strong> ${selectedCatTubeInfo.notes}</p>` : ``;
+        displayDiv.innerHTML = `<div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-4"><p class="text-lg"><strong>선택된 Tube 사이즈 (ID):</strong> <span class="result-value text-2xl">${selectedCatTubeInfo.size}</span></p><p class="text-lg"><strong>커프(Cuff) 확인:</strong> ${cuffStatus}</p></div>${notesText}`;
+    } else {
+        displayDiv.innerHTML = `<p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. 'ET Tube' 탭에서 기록해주세요.</p>`;
+    }
+}
 
 // --- 공격성 고양이 탭 기능 ---
 function switchAggCatTab(tabName) {
