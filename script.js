@@ -403,12 +403,36 @@ function populateEmergencyTab(weight) {
     document.getElementById('cpa_protocol_cat').innerHTML = `<div class="info-box mb-2 text-xs"><p><strong>핵심 개념:</strong> BLS는 '엔진'을 계속 돌려주는 역할이고, ALS는 '엔진을 수리'하는 역할입니다. 고품질의 BLS 없이는 ALS가 성공할 수 없습니다.</p></div><h4 class="font-bold text-md text-gray-800 mt-3">1. BLS (기본소생술)</h4><ul class="list-disc list-inside text-sm space-y-1 mt-1"><li><strong>순환:</strong> 분당 100-120회 속도로 흉곽 1/3 깊이 압박 (2분마다 교대)</li><li><strong>기도확보:</strong> 즉시 기관 삽관</li><li><strong>호흡:</strong> 6초에 1회 인공 환기 (과환기 금지)</li></ul><h4 class="font-bold text-md text-gray-800 mt-3">2. ALS (전문소생술)</h4><div class="mt-2 p-2 rounded-lg bg-red-100 space-y-2"><h5 class="font-semibold text-sm">에피네프린 (Low dose)</h5><p class="text-xs text-center mb-1 font-semibold">희석: 원액 0.1mL + N/S 0.9mL</p><p class="text-center font-bold text-red-700">${epiLowMl.toFixed(2)} mL (희석액) IV</p><hr><h5 class="font-semibold text-sm">바소프레신 (대체 가능)</h5><p class="text-center font-bold text-red-700">${vasoMl.toFixed(2)} mL IV</p><hr><h5 class="font-semibold text-sm">아트로핀 (Vagal arrest 의심 시)</h5><p class="text-center font-bold text-red-700">${atropineCpaMl.toFixed(2)} mL IV</p></div>`;
 }
     
-// --- 퇴원약 탭 기능 (복원된 전체 코드) ---
+// --- 퇴원약 탭 기능 (v4.2 로직 적용) ---
 function initializeDischargeTab() {
     const dischargeInputs = document.querySelectorAll('#dischargeTab .med-checkbox, #dischargeTab .days, #dischargeTab .dose');
     dischargeInputs.forEach(input => {
         input.addEventListener('input', calculateDischargeMeds);
         input.addEventListener('change', calculateDischargeMeds);
+    });
+
+    // 기본 처방 설정 (v4.2에서 가져온 로직)
+    const defaultMeds = {
+        '7day': ['clindamycin', 'gabapentin', 'famotidine', 'almagel'],
+        '3day': ['vetrocam', 'misoprostol', 'tramadol']
+    };
+
+    // 7일짜리 기본 처방 선택
+    defaultMeds['7day'].forEach(drugName => {
+        const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
+        if (row) {
+            row.querySelector('.med-checkbox').checked = true;
+            row.querySelector('.days').value = 7;
+        }
+    });
+
+    // 3일짜리 기본 처방 선택
+    defaultMeds['3day'].forEach(drugName => {
+        const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
+        if (row) {
+            row.querySelector('.med-checkbox').checked = true;
+            row.querySelector('.days').value = 3;
+        }
     });
 }
 
