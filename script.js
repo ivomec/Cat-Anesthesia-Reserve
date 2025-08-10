@@ -63,25 +63,28 @@
 
     // --- 환자 상태 변경 핸들러 ---
     function handleStatusChange(event) {
-        const changedCheckboxId = event.target.id;
+        const changedCheckbox = event.target;
+        const changedId = changedCheckbox.id;
+
         const healthyCb = document.getElementById('statusHealthy');
         const cardiacCb = document.getElementById('statusCardiac');
         const liverCb = document.getElementById('statusLiver');
         const kidneyCb = document.getElementById('statusKidney');
+        
         const diseaseCheckboxes = [cardiacCb, liverCb, kidneyCb];
 
-        // 'Chill Protocol'은 독립적이므로, 바로 전체 재계산만 수행
-        if (changedCheckboxId === 'statusChill') {
+        // Chill Protocol은 독립적이므로, 바로 전체 재계산만 수행
+        if (changedId === 'statusChill') {
             calculateAll();
             return;
         }
 
         // '건강'이 선택된 경우, 모든 질병 상태를 해제
-        if (changedCheckboxId === 'statusHealthy' && healthyCb.checked) {
+        if (changedId === 'statusHealthy' && healthyCb.checked) {
             diseaseCheckboxes.forEach(cb => { if(cb) cb.checked = false; });
-        } 
+        }
         // 질병이 선택된 경우, '건강' 상태를 해제
-        else if (diseaseCheckboxes.some(cb => cb && cb.id === changedCheckboxId && cb.checked)) {
+        else if (diseaseCheckboxes.some(cb => cb && cb.id === changedId && cb.checked)) {
             if(healthyCb) healthyCb.checked = false;
         }
 
@@ -92,7 +95,7 @@
         }
         
         // '간 이상'을 선택했을 때의 특별 로직
-        if (changedCheckboxId === 'statusLiver') {
+        if (changedId === 'statusLiver') {
             const liverMeds = ['udca', 'silymarin', 'same'];
             liverMeds.forEach(drugName => {
                 const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
@@ -105,7 +108,7 @@
                 }
             });
         }
-
+        
         // 모든 상태 변경 후, 전체 계산 로직을 다시 실행
         calculateAll();
     }
@@ -126,7 +129,7 @@
         activeTab.style.display = "block";
         activeTab.classList.add('active');
         evt.currentTarget.className += " active";
-    }
+    };
 
     // --- 전역 이름 연동 ---
     function hasFinalConsonant(name) {
