@@ -38,6 +38,11 @@
         .action-button.tertiary:hover { background-color: #4b5563; }
         .highlight-recommend { border: 2px solid #ef4444; }
         .prep-card { min-height: 150px; }
+        .status-checkbox-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem; }
+        .status-checkbox-group label { display: flex; align-items: center; cursor: pointer; font-size: 1rem; font-weight: 600; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 2px solid #d1d5db; transition: all 0.2s; }
+        .status-checkbox-group input:checked + label { background-color: #eef2ff; border-color: #4f46e5; color: #4338ca; }
+        .status-checkbox-group input { display: none; }
+
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -85,7 +90,7 @@
         </div>
 
         <div class="card p-6 md:p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div>
                     <label for="visitDate" class="block text-center text-xl font-semibold text-gray-700 mb-2">방문 날짜</label>
                     <input type="date" id="visitDate" class="input-field !text-lg !p-3">
@@ -98,32 +103,14 @@
                     <label for="weight" class="block text-center text-xl font-semibold text-gray-700 mb-2">환자 체중 (kg)</label>
                     <input type="number" id="weight" placeholder="체중 입력" class="input-field" step="0.1">
                 </div>
-                <div>
-                    <label for="patient_status" class="block text-center text-xl font-semibold text-gray-700 mb-2">환자 상태</label>
-                    <select id="patient_status" class="w-full p-4 text-center text-lg select-field">
-                        <option value="healthy" selected>건강한 환자</option>
-                        <option value="cardiac">심장 질환 의심</option>
-                    </select>
-                </div>
-                 <div>
-                    <label for="renal_status" class="block text-center text-xl font-semibold text-gray-700 mb-2">신기능 상태</label>
-                    <select id="renal_status" class="w-full p-4 text-center text-lg select-field">
-                        <option value="healthy" selected>PLAN A: 건강</option>
-                        <option value="renal">PLAN B: 신부전/의심</option>
-                    </select>
-                </div>
-                 <div>
-                    <label for="chill_protocol" class="block text-center text-xl font-semibold text-gray-700 mb-2">환자 유형</label>
-                    <select id="chill_protocol" class="w-full p-4 text-center text-lg select-field">
-                        <option value="no" selected>표준 환자</option>
-                        <option value="yes">Chill 프로토콜</option>
-                    </select>
-                </div>
-                <div class="lg:col-span-2 p-2 rounded-lg bg-gray-50 border">
-                    <label class="block text-center text-xl font-semibold text-gray-700 mb-2">특이사항</label>
-                     <div class="checkbox-group text-center">
-                        <label><input type="checkbox" id="liverIssue" class="w-4 h-4"> 간 이상</label>
-                        <label><input type="checkbox" id="kidneyIssue" class="w-4 h-4"> 신장 이상</label>
+                <div class="md:col-span-3 p-4 rounded-lg bg-gray-50 border">
+                    <label class="block text-center text-xl font-semibold text-gray-700 mb-3">환자 상태 (중복 가능)</label>
+                    <div class="status-checkbox-group">
+                        <div><input type="checkbox" id="statusHealthy" checked><label for="statusHealthy">건강</label></div>
+                        <div><input type="checkbox" id="statusCardiac"><label for="statusCardiac">심장 이상</label></div>
+                        <div><input type="checkbox" id="statusLiver"><label for="statusLiver">간 이상</label></div>
+                        <div><input type="checkbox" id="statusKidney"><label for="statusKidney">신장 이상</label></div>
+                        <div class="border-l-2 pl-4 border-gray-300"><input type="checkbox" id="statusChill"><label for="statusChill">Chill 프로토콜</label></div>
                     </div>
                 </div>
             </div>
@@ -403,10 +390,10 @@
                         <caption>간 보조제 (Liver Protectants)</caption>
                         <thead><tr><th>선택</th><th>약물 이름 (함량)</th><th>투약일</th><th>1회 용량 (mg/kg)</th><th>조제 정보</th><th>주의사항 (고양이)</th></tr></thead>
                         <tbody id="med-list-liver">
-                            <tr data-drug="udca" data-strength="200" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>우루사 (UDCA) (200mg)</td><td><input type="number" class="days" value="7" min="1"></td><td><input type="number" class="dose" value="5" step="0.1"> (10-15 mg/kg/day)</td><td class="total-amount"></td><td class="notes">담즙 정체성 간질환에 핵심적. <strong>식후 투여.</strong></td></tr>
-                            <tr data-drug="silymarin" data-strength="140" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>실리마린 (140mg)</td><td><input type="number" class="days" value="7" min="1"></td><td><input type="number" class="dose" value="10" step="1"> (20-50 mg/kg/day)</td><td class="total-amount"></td><td class="notes">항산화/간세포 보호. 갈아서 투여 가능.</td></tr>
-                            <tr data-drug="same" data-strength="200" data-special="same" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>SAMe (200mg)</td><td><input type="number" class="days" value="7" min="1"></td><td>2.5kg당 1/4정 (1일 1회)</td><td class="total-amount"></td><td class="notes"><span class="caution">장용코팅정. 절대 갈지 말고, 공복에 통째로 투여. 냉동보관, 컷팅해서 처방.</span></td></tr>
-                            <tr data-drug="paramel" data-special="paramel" data-unit="ml"><td><input type="checkbox" class="med-checkbox"></td><td>파라멜(액)</td><td><input type="number" class="days" value="7" min="1"></td><td>0.75 ml/kg</td><td class="total-amount"></td><td class="notes">15g 원액 2배 희석 기준. <span class="caution">고양이 데이터는 적어 개 용량에 준해 보수적 사용.</span></td></tr>
+                            <tr data-drug="udca" data-strength="200" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>우루사 (UDCA) (200mg)</td><td><input type="number" class="days" value="7" min="1"></td><td><input type="number" class="dose" value="5" step="0.1"> (10-15 mg/kg/day)</td><td class="total-amount"></td><td class="notes" data-liver="true">담즙 정체성 간질환에 핵심적. <strong>식후 투여.</strong></td></tr>
+                            <tr data-drug="silymarin" data-strength="140" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>실리마린 (140mg)</td><td><input type="number" class="days" value="7" min="1"></td><td><input type="number" class="dose" value="10" step="1"> (20-50 mg/kg/day)</td><td class="total-amount"></td><td class="notes" data-liver="true">항산화/간세포 보호. 갈아서 투여 가능.</td></tr>
+                            <tr data-drug="same" data-strength="200" data-special="same" data-unit="T"><td><input type="checkbox" class="med-checkbox"></td><td>SAMe (200mg)</td><td><input type="number" class="days" value="7" min="1"></td><td>2.5kg당 1/4정 (1일 1회)</td><td class="total-amount"></td><td class="notes" data-liver="true"><span class="caution">장용코팅정. 절대 갈지 말고, 공복에 통째로 투여. 냉동보관, 컷팅해서 처방.</span></td></tr>
+                            <tr data-drug="paramel" data-special="paramel" data-unit="ml"><td><input type="checkbox" class="med-checkbox"></td><td>파라멜(액)</td><td><input type="number" class="days" value="7" min="1"></td><td>0.75 ml/kg</td><td class="total-amount"></td><td class="notes" data-liver="true">15g 원액 2배 희석 기준. <span class="caution">고양이 데이터는 적어 개 용량에 준해 보수적 사용.</span></td></tr>
                         </tbody>
                     </table>
                     <table class="med-table">
