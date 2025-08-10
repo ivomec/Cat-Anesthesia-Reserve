@@ -1,4 +1,3 @@
-document.addEventListener('DOMContentLoaded', function () {
     // --- 전역 변수 및 상수 ---
     const concentrations_cat = {
         butorphanol: 10, midazolam: 5, propofol: 10, alfaxalone: 10, ketamine: 50, ketamine_diluted: 10, bupivacaine: 5, lidocaine: 20,
@@ -72,26 +71,26 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('statusKidney')
         ];
 
-        // '건강'과 '질병' 상태 상호 배타적 로직
-        if (changedCheckbox === healthyCheckbox && healthyCheckbox.checked) {
-            conditionCheckboxes.forEach(cb => { if(cb) cb.checked = false; });
-        } else if (conditionCheckboxes.includes(changedCheckbox) && changedCheckbox.checked) {
-            if(healthyCheckbox) healthyCheckbox.checked = false;
+        if (changedCheckbox.id !== 'statusChill') {
+            if (changedCheckbox === healthyCheckbox && healthyCheckbox.checked) {
+                conditionCheckboxes.forEach(cb => { if (cb) cb.checked = false; });
+            } else if (conditionCheckboxes.some(cb => cb === changedCheckbox && cb.checked)) {
+                if (healthyCheckbox) healthyCheckbox.checked = false;
+            }
+
+            const isAnyDiseaseChecked = conditionCheckboxes.some(cb => cb && cb.checked);
+            if (!isAnyDiseaseChecked && healthyCheckbox) {
+                healthyCheckbox.checked = true;
+            }
         }
 
-        // 만약 모든 질병 체크박스가 해제되었다면 '건강'을 자동으로 체크
-        const isAnyDiseaseChecked = conditionCheckboxes.some(cb => cb && cb.checked);
-        if (!isAnyDiseaseChecked && healthyCheckbox) {
-            healthyCheckbox.checked = true;
-        }
-        
-        // '간 이상'을 선택했을 때의 특별 로직
         if (changedCheckbox.id === 'statusLiver') {
             const liverMeds = ['udca', 'silymarin', 'same'];
+            const isLiverChecked = changedCheckbox.checked;
             liverMeds.forEach(drugName => {
                 const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
                 if (row) {
-                    if (changedCheckbox.checked) {
+                    if (isLiverChecked) {
                         row.querySelector('.med-checkbox').checked = true;
                         row.querySelector('.days').value = 7;
                     }
@@ -99,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // 모든 상태 변경 후, 전체 계산 로직을 다시 실행
         calculateAll();
     }
 
