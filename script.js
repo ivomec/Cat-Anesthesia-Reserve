@@ -1,4 +1,5 @@
-   // --- 전역 변수 및 상수 ---
+document.addEventListener('DOMContentLoaded', function () {
+    // --- 전역 변수 및 상수 ---
     const concentrations_cat = {
         butorphanol: 10, midazolam: 5, propofol: 10, alfaxalone: 10, ketamine: 50, ketamine_diluted: 10, bupivacaine: 5, lidocaine: 20,
         meloxicam_inj: 2, atropine: 0.5, norepinephrine_raw: 1, epinephrine: 1, vasopressin: 20, meloxicam_oral: 0.5, dexmedetomidine: 0.5
@@ -64,51 +65,40 @@
     // --- 환자 상태 변경 핸들러 ---
     function handleStatusChange(event) {
         const changedCheckbox = event.target;
-        const changedId = changedCheckbox.id;
+        const healthyCheckbox = document.getElementById('statusHealthy');
+        const conditionCheckboxes = [
+            document.getElementById('statusCardiac'),
+            document.getElementById('statusLiver'),
+            document.getElementById('statusKidney')
+        ];
 
-        const healthyCb = document.getElementById('statusHealthy');
-        const cardiacCb = document.getElementById('statusCardiac');
-        const liverCb = document.getElementById('statusLiver');
-        const kidneyCb = document.getElementById('statusKidney');
-        
-        const diseaseCheckboxes = [cardiacCb, liverCb, kidneyCb];
-
-        // Chill Protocol은 독립적이므로, 바로 전체 재계산만 수행
-        if (changedId === 'statusChill') {
-            calculateAll();
-            return;
+        // '건강'과 '질병' 상태 상호 배타적 로직
+        if (changedCheckbox === healthyCheckbox && healthyCheckbox.checked) {
+            conditionCheckboxes.forEach(cb => { if(cb) cb.checked = false; });
+        } else if (conditionCheckboxes.includes(changedCheckbox) && changedCheckbox.checked) {
+            if(healthyCheckbox) healthyCheckbox.checked = false;
         }
 
-        // '건강'이 선택된 경우, 모든 질병 상태를 해제
-        if (changedId === 'statusHealthy' && healthyCb.checked) {
-            diseaseCheckboxes.forEach(cb => { if(cb) cb.checked = false; });
-        }
-        // 질병이 선택된 경우, '건강' 상태를 해제
-        else if (diseaseCheckboxes.some(cb => cb && cb.id === changedId && cb.checked)) {
-            if(healthyCb) healthyCb.checked = false;
-        }
-
-        // 만약 모든 질병 체크박스가 해제되었다면, '건강'을 자동으로 체크
-        const isAnyDiseaseChecked = diseaseCheckboxes.some(cb => cb && cb.checked);
-        if (!isAnyDiseaseChecked && healthyCb) {
-            healthyCb.checked = true;
+        // 만약 모든 질병 체크박스가 해제되었다면 '건강'을 자동으로 체크
+        const isAnyDiseaseChecked = conditionCheckboxes.some(cb => cb && cb.checked);
+        if (!isAnyDiseaseChecked && healthyCheckbox) {
+            healthyCheckbox.checked = true;
         }
         
         // '간 이상'을 선택했을 때의 특별 로직
-        if (changedId === 'statusLiver') {
+        if (changedCheckbox.id === 'statusLiver') {
             const liverMeds = ['udca', 'silymarin', 'same'];
             liverMeds.forEach(drugName => {
                 const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
                 if (row) {
-                    // '간 이상'이 체크되었을 때만 자동으로 약을 체크
-                    if (liverCb.checked) {
+                    if (changedCheckbox.checked) {
                         row.querySelector('.med-checkbox').checked = true;
                         row.querySelector('.days').value = 7;
                     }
                 }
             });
         }
-        
+
         // 모든 상태 변경 후, 전체 계산 로직을 다시 실행
         calculateAll();
     }
