@@ -30,25 +30,6 @@ function initializeAll() {
     document.getElementById('calculate-trachea-btn')?.addEventListener('click', calculateTracheaSize);
     document.getElementById('trachea-input')?.addEventListener('keydown', (event) => { if (event.key === 'Enter') calculateTracheaSize(); });
     document.getElementById('saveCatEtTubeSelection')?.addEventListener('click', saveCatEtTubeSelection);
-    
-    // 사이클로스포린 탭
-    document.getElementById('petWeightCyclo')?.addEventListener('input', calculateCycloDose);
-    document.getElementById('durationCyclo')?.addEventListener('input', calculateCycloDose);
-
-    // 노스판 탭
-    const attachDateEl = document.getElementById('attachDate');
-    const attachTimeEl = document.getElementById('attachTime');
-    if(attachDateEl && attachTimeEl){
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        attachDateEl.value = now.toISOString().slice(0,10);
-        attachTimeEl.value = now.toISOString().slice(11,16);
-        attachDateEl.addEventListener('change', calculateRemovalDate);
-        attachTimeEl.addEventListener('change', calculateRemovalDate);
-    }
-
-    // 구내염 탭 차트 생성
-    createStomatitisChart();
 
     // 퇴원약 탭 초기화
     initializeDischargeTab();
@@ -58,7 +39,6 @@ function initializeAll() {
 
     // 초기 계산 실행
     calculateAll();
-    calculateRemovalDate();
 }
 
 // --- 환자 상태 변경 핸들러 ---
@@ -127,16 +107,15 @@ function hasFinalConsonant(name) {
 }
 
 function updateAllTitles() {
+    // 삭제된 탭과 관련된 코드가 제거되어 기능이 비어있지만,
+    // 추후 다른 탭에 이름 연동이 필요할 경우를 위해 함수 구조는 유지합니다.
     const name = document.getElementById('globalPetName').value.trim();
     const hasJongseong = hasFinalConsonant(name);
     const nameOrDefault = name || "아이";
     const subjectParticle = hasJongseong ? '을' : '를';
 
     const titles = {
-        stomatitisTitle: `우리 ${nameOrDefault}${hasJongseong ? "이를" : "를"} 위한<br>만성 구내염 및 전발치 안내서`,
-        cyclosporineTitle: `✨ ${nameOrDefault}${hasJongseong ? '이의' : '의'} 사이클로스포린 복약 안내문 ✨`,
-        norspanTitle: `${nameOrDefault}${hasJongseong ? '이를' : '를'} 위한 통증 관리 패치 안내문`,
-        gabapentinTitle: `<span>${nameOrDefault}</span><span>${subjectParticle}</span> 위한 편안한 진료 준비 안내서`
+        // 모든 제목 관련 ID가 삭제되었습니다.
     };
 
     for (const id in titles) {
@@ -176,9 +155,7 @@ function gatherDashboardData() {
             statusChill: document.getElementById('statusChill')?.checked || false,
             etTubeInfo: selectedCatTubeInfo,
             dischargeMeds: dischargeMeds,
-            etTubeNotes: document.getElementById('cat_selectedEtTubeNotes')?.value || '',
-            norspanAttachDate: document.getElementById('attachDate')?.value || '',
-            norspanAttachTime: document.getElementById('attachTime')?.value || ''
+            etTubeNotes: document.getElementById('cat_selectedEtTubeNotes')?.value || ''
         };
     } catch (error) {
         console.error("Error in gatherDashboardData:", error);
@@ -217,9 +194,6 @@ function applyDashboardData(data) {
                 }
             });
         }
-        
-        document.getElementById('attachDate').value = data.norspanAttachDate || '';
-        document.getElementById('attachTime').value = data.norspanAttachTime || '';
 
         calculateAll();
         alert('기록을 성공적으로 불러왔습니다.');
@@ -272,13 +246,13 @@ function handleFileLoad(event) {
     reader.readAsText(file);
     event.target.value = ''; // 동일한 파일을 다시 불러올 수 있도록 초기화
 }
-
+    
 function saveActiveTabAsImage() {
     const activeTab = document.querySelector('.tab-content.active');
     if (!activeTab) return;
     const petName = document.getElementById('globalPetName').value.trim() || '환자';
     const tabId = activeTab.id || 'current_tab';
-    const fileName = `${petName}_${tabId}_안내문.png`;
+    const fileName = `${petName}_${tabId}_이미지.png`; // 파일 이름에서 '안내문'을 '이미지'로 변경
     
     html2canvas(activeTab, {
         scale: 2,
@@ -294,7 +268,7 @@ function saveActiveTabAsImage() {
         document.body.removeChild(link);
     });
 }
-
+    
 // --- 메인 계산기 및 프로토콜 ---
 function calculateAll() {
     updateAllTitles();
@@ -328,10 +302,7 @@ function calculateAll() {
             document.getElementById('weight-input').value = '';
             calculateWeightSize();
         }
-        if (document.getElementById('petWeightCyclo')) {
-            document.getElementById('petWeightCyclo').value = '';
-            calculateCycloDose();
-        }
+        
         calculateDischargeMeds(); 
         return;
     }
@@ -340,11 +311,7 @@ function calculateAll() {
         document.getElementById('weight-input').value = weight;
         calculateWeightSize();
     }
-    if(document.getElementById('petWeightCyclo')) {
-        document.getElementById('petWeightCyclo').value = weight;
-        calculateCycloDose();
-    }
-    
+
     populatePrepTab(weight, isCardiac, isKidney, isLiver, isChill);
     populateEmergencyTab(weight);
     calculateDischargeMeds();
@@ -601,7 +568,7 @@ function populateEmergencyTab(weight) {
     const atropineCpaMl = (0.04 * weight) / concentrations_cat.atropine;
     document.getElementById('cpa_protocol_cat').innerHTML = `<div class="info-box mb-2 text-xs"><p><strong>핵심 개념:</strong> BLS는 '엔진'을 계속 돌려주는 역할이고, ALS는 '엔진을 수리'하는 역할입니다. 고품질의 BLS 없이는 ALS가 성공할 수 없습니다.</p></div><h4 class="font-bold text-md text-gray-800 mt-3">1. BLS (기본소생술)</h4><ul class="list-disc list-inside text-sm space-y-1 mt-1"><li><strong>순환:</strong> 분당 100-120회 속도로 흉곽 1/3 깊이 압박 (2분마다 교대)</li><li><strong>기도확보:</strong> 즉시 기관 삽관</li><li><strong>호흡:</strong> 6초에 1회 인공 환기 (과환기 금지)</li></ul><h4 class="font-bold text-md text-gray-800 mt-3">2. ALS (전문소생술)</h4><div class="mt-2 p-2 rounded-lg bg-red-100 space-y-2"><h5 class="font-semibold text-sm">에피네프린 (Low dose)</h5><p class="text-xs text-center mb-1 font-semibold">희석: 원액 0.1mL + N/S 0.9mL</p><p class="text-center font-bold text-red-700">${epiLowMl.toFixed(2)} mL (희석액) IV</p><hr><h5 class="font-semibold text-sm">바소프레신 (대체 가능)</h5><p class="text-center font-bold text-red-700">${vasoMl.toFixed(2)} mL IV</p><hr><h5 class="font-semibold text-sm">아트로핀 (Vagal arrest 의심 시)</h5><p class="text-center font-bold text-red-700">${atropineCpaMl.toFixed(2)} mL IV</p></div>`;
 }
-
+    
 // --- 퇴원약 탭 기능 ---
 function initializeDischargeTab() {
     const dischargeInputs = document.querySelectorAll('#dischargeTab .med-checkbox, #dischargeTab .days, #dischargeTab .dose');
@@ -752,52 +719,6 @@ function updateDischargeWarnings() {
             noteCell.classList.add('highlight-warning');
         }
     });
-}
-
-// --- 구내염 탭 차트 ---
-function createStomatitisChart() {
-    const ctx = document.getElementById('prognosisChart');
-    if (!ctx) return;
-    new Chart(ctx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['완전한 회복', '현저한 개선', '부분적 개선'],
-            datasets: [{ data: [60, 25, 15], backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], borderWidth: 2 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 20 } } } }
-    });
-}
-
-// --- 사이클로스포린 탭 계산기 ---
-function calculateCycloDose(){
-    const doseResultDiv = document.getElementById('doseResultCyclo');
-    const weight = parseFloat(document.getElementById('petWeightCyclo').value);
-    const duration = parseInt(document.getElementById('durationCyclo').value);
-    if (isNaN(weight) || weight <= 0) {
-        doseResultDiv.innerHTML = '<p class="text-gray-700">👆 상단의 몸무게와 복용 기간을 입력하시면 자동으로 계산됩니다.</p>';
-        return;
-    }
-    const doseInMl = (weight * 5) / 100;
-    let htmlContent = `<p class="text-lg"><strong><i class="fa-solid fa-syringe"></i> 1일 권장 정량 (${weight}kg 기준)</strong></p><p class="text-4xl font-black my-2 text-indigo-600">${doseInMl.toFixed(2)} mL</p><p class="text-sm text-gray-700">(사이클로스포린 ${(weight * 5).toFixed(1)} mg에 해당)</p>`;
-    if (!isNaN(duration) && duration > 0) {
-        htmlContent += `<div class="mt-4 pt-4 border-t-2 border-dashed border-indigo-200"><p class="text-lg"><strong><i class="fa-solid fa-calendar-check"></i> 총 필요 용량 (${duration}일 기준)</strong></p><p class="text-4xl font-black my-2 text-green-600">${(doseInMl * duration).toFixed(2)} mL</p></div>`;
-    }
-    doseResultDiv.innerHTML = htmlContent;
-}
-
-// --- 노스판 탭 날짜 계산 ---
-function calculateRemovalDate() {
-    const dateInput = document.getElementById('attachDate');
-    const timeInput = document.getElementById('attachTime');
-    const removalInfoDiv = document.getElementById('removalInfo');
-    if(!dateInput || !timeInput || !removalInfoDiv) return;
-    if (!dateInput.value || !timeInput.value) { removalInfoDiv.innerHTML = '<p class="font-bold text-yellow-900">날짜와 시간을 입력해주세요.</p>'; return; }
-    const attachDateTime = new Date(`${dateInput.value}T${timeInput.value}`);
-    if (isNaN(attachDateTime.getTime())) { removalInfoDiv.innerHTML = '<p class="font-bold text-red-700">유효한 날짜와 시간을 입력해주세요.</p>'; return; }
-    const removalDateStart = new Date(attachDateTime.getTime() + 72 * 3600 * 1000);
-    const removalDateEnd = new Date(attachDateTime.getTime() + 96 * 3600 * 1000);
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
-    removalInfoDiv.innerHTML = `<h4 class="text-lg font-bold text-gray-800 mb-2">🗓️ 패치 제거 권장 기간</h4><p class="text-base text-gray-700"><strong class="text-blue-600">${new Intl.DateTimeFormat('ko-KR', options).format(removalDateStart)}</strong> 부터<br><strong class="text-blue-600">${new Intl.DateTimeFormat('ko-KR', options).format(removalDateEnd)}</strong> 사이에<br>패치를 제거해주세요.</p>`;
 }
 
 // --- ET Tube 탭 계산기 ---
