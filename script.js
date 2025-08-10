@@ -250,14 +250,17 @@ function handleFileLoad(event) {
 function saveActiveTabAsImage() {
     const activeTab = document.querySelector('.tab-content.active');
     if (!activeTab) return;
+    
     const petName = document.getElementById('globalPetName').value.trim() || '환자';
     const tabId = activeTab.id || 'current_tab';
-    const fileName = `${petName}_${tabId}_이미지.png`; // 파일 이름에서 '안내문'을 '이미지'로 변경
-    
+    const fileName = `${petName}_${tabId}_이미지.png`;
+
     html2canvas(activeTab, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
+        scale: 2, // 해상도를 2배로 높여 품질 개선
+        useCORS: true, // 외부 이미지가 있을 경우 필요
+        backgroundColor: '#ffffff', // 배경색을 흰색으로 지정하여 투명 배경 방지
+        windowWidth: activeTab.scrollWidth, // 화면에 보이는 너비가 아닌, 실제 요소의 전체 너비 사용
+        windowHeight: activeTab.scrollHeight // 화면에 보이는 높이가 아닌, 스크롤을 포함한 실제 요소의 전체 높이 사용
     }).then(canvas => {
         const image = canvas.toDataURL('image/png');
         const link = document.createElement('a');
