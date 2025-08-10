@@ -73,6 +73,39 @@
         
         /* --- Chill 교육 탭으로부터 가져온 스타일 --- */
         #chillEduTab .table-header { background-color: #f9fafb; font-weight: 600; color: #374151; }
+        
+        /* --- Etco2 Tab Styles --- */
+        .protocol-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .protocol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        #etco2Tab h2 {
+            border-bottom: 2px solid;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        #etco2Tab li {
+            padding-bottom: 0.75rem;
+        }
+        .highlight {
+            background-color: #fef9c3;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        /* --- Norspan Patch Tab Styles --- */
+        @media print {
+            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+            .no-print { display: none; }
+        }
+        #norspanTab {
+             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+        }
 
     </style>
 </head>
@@ -129,6 +162,8 @@
                 <button class="tab-button active" onclick="openTab(event, 'prepTab')"><i class="fas fa-pills mr-2"></i>마취 준비</button>
                 <button class="tab-button" onclick="openTab(event, 'etTubeTab')"><i class="fa-solid fa-staff-snake mr-2"></i>ET Tube</button>
                 <button class="tab-button" onclick="openTab(event, 'emergencyTab')"><i class="fas fa-heart-pulse mr-2"></i>응급상황 대처</button>
+                <button class="tab-button" onclick="openTab(event, 'etco2Tab')"><i class="fas fa-chart-line mr-2"></i>EtCO2 관리</button>
+                <button class="tab-button" onclick="openTab(event, 'norspanTab')"><i class="fas fa-band-aid mr-2"></i>노스판패취</button>
                 <button class="tab-button" onclick="openTab(event, 'chillEduTab')"><i class="fas fa-graduation-cap mr-2"></i>Chill 교육</button>
                 <button class="tab-button" onclick="openTab(event, 'dischargeTab')"><i class="fas fa-file-prescription mr-2"></i>퇴원약 조제</button>
             </div>
@@ -349,6 +384,341 @@
                 </div>
             </div>
         </div>
+
+        <div id="etco2Tab" class="tab-content">
+            <div class="max-w-7xl mx-auto">
+                <!-- 문서 제목 -->
+                <div class="text-center mb-10">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">마취 환자 환기 관리 통합 프로토콜</h1>
+                    <p class="text-lg text-gray-600 mt-2">민드레이 Veta5 마취기 기준 (v2.1)</p>
+                </div>
+        
+                <!-- 기본 원칙 -->
+                <div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-green-500">
+                    <div class="flex items-center">
+                        <svg class="w-10 h-10 text-green-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">환기 관리 목표</h3>
+                            <p class="text-gray-700"><span class="font-bold">EtCO2:</span> 35-45 mmHg, <span class="font-bold">FiCO2:</span> 0 mmHg 유지</p>
+                            <p class="text-gray-600 mt-1">EtCO2는 환자의 환기 상태를, FiCO2는 마취 회로의 이상 유무를 알려주는 핵심 지표입니다.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 프로토콜 섹션 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- EtCO2 저하 카드 -->
+                    <div class="protocol-card bg-white rounded-lg p-6 border-t-8 border-blue-500">
+                        <h2 class="text-2xl font-bold text-blue-700 flex items-center border-blue-700">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>
+                            EtCO2 저하 (Hypocapnia, &lt; 35 mmHg)
+                        </h2>
+                        <div class="mb-4">
+                            <!-- 이전 프로토콜의 '주요 원인'이 아래 '즉시 확인'과 '대응 프로토콜'에 행동 중심으로 통합되었습니다. -->
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">🚨 즉시 확인! (환자 상태 먼저!)</h3>
+                            <ul class="list-disc list-inside text-gray-700">
+                                <li><span class="font-bold">저혈압 (폐관류 감소):</span> <span class="highlight">평균 동맥압(MAP) &lt; 60 mmHg</span> 인가? (가장 위험!)</li>
+                                <li><span class="font-bold">저체온증 (대사율 저하):</span> 체온이 37.0°C 미만으로 떨어졌는가?</li>
+                                <li><span class="font-bold">과환기:</span> 마취 심도가 얕아 환자가 헐떡이는가? 또는 인공호흡 설정이 과한가?</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">🛠️ 대응 프로토콜 (단계별)</h3>
+                            <ol class="list-decimal list-inside text-gray-700 space-y-3">
+                                <li><span class="font-semibold">생체 활력 징후 교정:</span>
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li><span class="font-bold">저혈압 시:</span> 마취제 농도 감소, 수액 증량, 승압제 사용을 즉시 고려합니다.</li>
+                                        <li><span class="font-bold">저체온증 시:</span> 온풍기, 보온매트 등 보온 장비를 최대로 가동합니다.</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold text-blue-600">인공호흡기 설정 조절 (과환기 교정):</span>
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li><span class="font-bold">1순위:</span> Veta5 설정에서 <span class="bg-blue-100 px-1 rounded">'호흡수(RR)'</span>를 분당 1~2회 낮춥니다.</li>
+                                        <li><span class="font-bold">2순위:</span> 그래도 낮으면 <span class="bg-blue-100 px-1 rounded">'1회호흡량(VT)'</span>을 10% 정도 줄입니다.</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold">장비 점검:</span> EtCO2 샘플링 라인과 기관튜브 커프의 누출 여부를 확인합니다.</li>
+                            </ol>
+                        </div>
+                    </div>
+        
+                    <!-- EtCO2 상승 카드 -->
+                    <div class="protocol-card bg-white rounded-lg p-6 border-t-8 border-red-500">
+                        <h2 class="text-2xl font-bold text-red-700 flex items-center border-red-700">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            EtCO2 상승 (Hypercapnia, &gt; 45 mmHg)
+                        </h2>
+                        <div class="mb-4">
+                            <!-- 이전 프로토콜의 '주요 원인'이 아래 '즉시 확인'과 '대응 프로토콜'에 행동 중심으로 통합되었습니다. -->
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">🚨 즉시 확인! (장비 먼저!)</h3>
+                            <ul class="list-disc list-inside text-gray-700">
+                                <li><span class="font-bold">CO2 재호흡:</span> 모니터의 <span class="highlight">FiCO2 수치가 0 이상인가?</span> (가장 흔한 원인!)</li>
+                                <li><span class="font-bold">환기 저하:</span> 흉곽 움직임이 너무 작거나 호흡이 얕은가? (마취 심도가 너무 깊은가?)</li>
+                                <li><span class="font-bold">대사율 증가:</span> 환자가 떨거나, 발열, 악성고열증이 의심되는가?</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">🛠️ 대응 프로토콜 (단계별)</h3>
+                            <ol class="list-decimal list-inside text-gray-700 space-y-3">
+                                <li><span class="font-semibold text-red-600">재호흡 원인 확인 및 제거:</span>
+                                    <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li><span class="font-bold">FiCO2 > 2 mmHg 시:</span> 즉시 <span class="bg-red-100 px-1 rounded">소다라임 교체</span>를 준비합니다. (아래 교체 프로토콜 참조)</li>
+                                        <li><span class="font-bold">마취기 밸브 점검:</span> 호기/흡기 밸브가 오염되거나 붙지 않았는지 확인합니다.</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold">환기 개선:</span>
+                                     <ul class="list-disc list-inside ml-4 mt-1">
+                                        <li><span class="font-bold">1순위:</span> Veta5 설정에서 <span class="bg-red-100 px-1 rounded">'호흡수(RR)'</span>를 분당 1~2회 높입니다.</li>
+                                        <li><span class="font-bold">2순위:</span> 그래도 높으면 <span class="bg-red-100 px-1 rounded">'1회호흡량(VT)'</span>을 10% 정도 늘립니다.</li>
+                                    </ul>
+                                </li>
+                                <li><span class="font-semibold">마취 심도 조절:</span> 마취가 너무 깊어 호흡이 억제된 경우, 마취제 농도를 줄여 환기를 개선합니다.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 소다라임 교체 프로토콜 -->
+                <div class="mt-10 bg-white rounded-lg p-6 shadow-md border-l-4 border-yellow-500">
+                    <h2 class="text-2xl font-bold text-yellow-700 border-yellow-500 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5V4H4zm0 0l5 5m-5 0h5v5H4v-5zm0 0l5-5m6 5v5h5V9h-5zm0 0l5 5m-5 0h5v5h-5v-5zm0 0l5-5"></path></svg>
+                        소다라임 (CO₂ 흡수제) 교체 프로토콜
+                    </h2>
+                    <p class="text-gray-600 mb-6">아래 기준을 종합적으로 판단하여 교체 시기를 결정합니다. (우선순위 순)</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-lg font-bold text-gray-800">1. FiCO₂ 수치 (가장 중요)</p>
+                            <p class="text-2xl font-extrabold text-red-600 my-2">≥ 2-3 mmHg</p>
+                            <p class="text-gray-600">수치가 0 이상이면 기능 저하 신호. 즉시 교체를 고려해야 합니다.</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-lg font-bold text-gray-800">2. 색깔 변화</p>
+                            <p class="text-2xl font-extrabold text-purple-600 my-2">≥ 50-70%</p>
+                            <p class="text-gray-600">캐니스터의 절반 이상이 보라색으로 변했을 때 교체합니다. (색깔 복원 주의!)</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-lg font-bold text-gray-800">3. 사용 시간 (보조 지표)</p>
+                            <p class="text-2xl font-extrabold text-blue-600 my-2">8 ~ 12 시간</p>
+                            <p class="text-gray-600">사용 시간을 라벨에 기록하고, 기준 도달 시 교체를 고려합니다.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 푸터 -->
+                <div class="text-center mt-10 pt-6 border-t">
+                    <p class="text-sm text-gray-500">본 프로토콜은 일반적인 가이드라인입니다. 모든 임상적 판단의 최종 책임은 담당 수의사에게 있습니다.</p>
+                    <p class="text-xs text-gray-400 mt-2">AI Tutor 'Anes' on behalf of the Hospital Director (v2.1)</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="norspanTab" class="tab-content">
+            <div class="container mx-auto p-4 sm:p-8 max-w-5xl">
+                <div class="bg-white rounded-xl shadow-lg p-6 sm:p-10 border border-gray-200">
+                    
+                    <!-- 헤더 -->
+                    <header class="border-b-2 border-blue-600 pb-4 mb-8">
+                        <h1 class="text-3xl md:text-4xl font-bold text-blue-800">부프레노르핀 패치 임상 프로토콜 (SOP)</h1>
+                        <p class="text-lg text-gray-600 mt-2">금호동물병원 | 최종 개정일: 2025-07-21</p>
+                    </header>
+        
+                    <!-- 1. 목적 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">1. 목적 (Purpose)</h2>
+                        <p class="text-gray-700">본 지침은 고양이 환자에게 중등도 이상의 수술 후 통증 또는 만성 통증 관리를 위해 부프레노르핀 경피 패치를 안전하고 효과적으로 사용하는 표준 절차를 확립하는 것을 목적으로 한다.</p>
+                    </section>
+        
+                    <!-- 2. 적용 대상 및 금기 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">2. 적용 대상 및 금기</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <h3 class="text-lg font-bold text-green-800 mb-2">✅ 적용 대상 (Indications)</h3>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                    <li><strong>주 적용 동물:</strong> 고양이</li>
+                                    <li><strong>수술 후 통증 관리:</strong> 전발치, 정형외과 수술, 개복술 등</li>
+                                    <li><strong>만성 통증 관리:</strong> 퇴행성 관절 질환(DJD), 종양성 통증, 만성 구내염</li>
+                                    <li><strong>만성 신부전(CKD) 환자의 통증 관리</strong></li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                <h3 class="text-lg font-bold text-red-800 mb-2">❌ 금기 및 주의 (Contraindications & Cautions)</h3>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                    <li><strong>개:</strong> 흡수율의 예측 불가능성</li>
+                                    <li><strong>급성/중증 통증의 단독 치료</strong></li>
+                                    <li>체온 조절 이상(고체온/저체온) 환자</li>
+                                    <li>부착 부위 피부 질환 또는 상처</li>
+                                    <li><strong>심각한 간 기능 부전 환자</strong> (용량 조절 및 집중 모니터링 필요)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+        
+                    <!-- 3. 용량 계산 및 선택 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">3. 용량 계산 및 선택</h2>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <p class="font-bold text-blue-800 text-center text-lg">목표 용량 (Target Dose): 5-10 mcg/kg/hour</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-200">
+                                    <tr>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">체중 (kg)</th>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">시간당 필요 용량 (mcg/h)</th>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">추천 패치 (노스판®)</th>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">임상적 고려사항</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">~ 2.0 kg</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">10 ~ 20</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">10 mcg/h 1매</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">5 mcg/h는 용량 미달 가능성 높음. 진정 등 부작용 모니터링.</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">2.1 ~ 4.0 kg</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">10.5 ~ 40</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">20 mcg/h 1매</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">가장 일반적인 적용 범위. 강력한 기저 진통 제공.</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">4.1 ~ 6.0 kg</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">20.5 ~ 60</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">20 mcg/h 1매</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">패치 단독으로 부족할 수 있음. **다른 진통제(가바펜틴 등) 병용 필수.**</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">> 6.0 kg</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">30 ~ 60+</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">20 mcg/h 1매</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">**적극적인 다중 진통 프로토콜(Multimodal analgesia)의 일부로만 사용.**</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="bg-red-600 text-white text-center font-bold p-3 rounded-lg mt-6">
+                            🚨 경고: 패치는 절대 자르지 말 것 (NEVER CUT THE PATCH)! 약물 방출 조절막이 파괴되어 과용량(Dose Dumping) 위험이 있습니다.
+                        </div>
+                    </section>
+        
+                    <!-- 4. 적용 절차 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">4. 적용 절차 (Application Procedure)</h2>
+                        <ol class="list-decimal list-inside space-y-3 text-gray-700">
+                            <li><strong>타이밍:</strong> 진통 효과가 필요한 시점으로부터 **최소 6~12시간 전**에 부착 (수술 전날 저녁 또는 당일 아침 일찍).</li>
+                            <li><strong>부위 선정:</strong> 털이 적고 환자가 핥기 어려운 곳 (**측흉부**가 가장 이상적).</li>
+                            <li><strong>피부 준비:</strong>
+                                <ul class="list-disc list-inside ml-6 mt-1">
+                                    <li>#40 클리퍼로 피부 손상 없이 털을 제거.</li>
+                                    <li>**오직 물이나 생리식염수**로만 닦아낸 후 완벽히 건조.</li>
+                                    <li class="font-bold text-red-600">알코올, 소독제 사용 절대 금지 (피부 장벽 손상).</li>
+                                </ul>
+                            </li>
+                            <li><strong>부착:</strong> 시술자는 장갑을 착용. 패치 부착 후 손바닥으로 **30~60초간 꾸준히 눌러** 체온으로 밀착.</li>
+                            <li><strong>기록:</strong> 차트에 부착 날짜, 시간, 부위, 패치 용량을 정확히 기재.</li>
+                        </ol>
+                    </section>
+                    
+                    <!-- 5. 작용 시간 및 부작용 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">5. 작용 시간 및 부작용</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">⏰ 작용 시간 (Timeline)</h3>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start"><span class="bg-yellow-200 text-yellow-800 font-bold px-2 py-1 rounded-md mr-3">발현기</span><div><strong>6-12 시간 소요</strong><br><span class="text-sm">피하 저장소 형성 기간</span></div></li>
+                                    <li class="flex items-start"><span class="bg-green-200 text-green-800 font-bold px-2 py-1 rounded-md mr-3">지속기</span><div><strong>3-4일 지속</strong><br><span class="text-sm">안정적인 혈중 농도 유지</span></div></li>
+                                    <li class="flex items-start"><span class="bg-blue-200 text-blue-800 font-bold px-2 py-1 rounded-md mr-3">감소기</span><div><strong>제거 후 서서히 감소</strong><br><span class="text-sm">12시간마다 약 50%씩 감소</span></div></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">⚠️ 주요 부작용 (Adverse Effects)</h3>
+                                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                    <li><strong>흔함:</strong> 행동 변화 (유포리아/디스포리아), 고체온증(1-1.5℃↑), 동공산대, 진정</li>
+                                    <li><strong>드묾:</strong> 식욕부진, 구토</li>
+                                    <li class="font-bold"><strong>매우 드묾:</strong> 호흡 억제 (Full-agonist에 비해 현저히 낮음)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+        
+                    <!-- 6. 모니터링 및 대처 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">6. 모니터링 및 대처 (Monitoring & Management)</h2>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md">
+                            <h3 class="text-lg font-bold text-yellow-900 mb-2">🔥 핵심 안전 수칙: 온도 관리</h3>
+                            <p class="text-yellow-800">패치 부착 환자에게 **전기장판, 핫팩 등 모든 외부 열원 사용을 절대 금지**할 것. 약물 과다 흡수로 인한 응급상황을 유발할 수 있음을 보호자에게 반드시 교육해야 함.</p>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="text-lg font-bold text-gray-700 mb-2">통증 vs. 디스포리아 감별</h3>
+                            <p class="text-gray-700">보호자가 '아이가 안절부절 못해요'라고 보고 시, 다음을 고려하여 감별:</p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2 ml-4">
+                                <li><strong>통증 의심:</strong> 특정 부위를 만지면 아파하거나, 공격성을 보이거나, 술부 그루밍을 시도. -> **추가 진통제 투여 (Rescue analgesia)**</li>
+                                <li><strong>디스포리아 의심:</strong> 목적 없이 서성거리거나, 지속적으로 울고, 외부 자극에 반응이 둔함. -> **환경 조절 (조용하고 어두운 곳), 심할 경우 패치 제거 고려.**</li>
+                            </ul>
+                        </div>
+                    </section>
+                    
+                    <!-- 7. 특수 환자군 고려사항 -->
+                    <section class="mb-10">
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">7. 특수 환자군 고려사항</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">Liver Disease (간 질환)</h3>
+                                <p class="text-gray-700">부프레노르핀은 주로 간에서 대사됩니다. 심각한 간 기능 저하(간부전 등)는 약물 대사를 지연시켜 작용 시간 연장 및 부작용 위험을 증가시킬 수 있습니다. 따라서, 심각한 간 질환 환자에게는 **용량 감소(예: 25-50% 감량) 또는 투여 간격 연장**을 고려하고, 부작용 발현 여부를 면밀히 모니터링해야 합니다.</p>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">Kidney Disease (신장 질환)</h3>
+                                <p class="text-gray-700">부프레노르핀은 주로 담즙과 대변으로 배설(약 80%)되므로 신장 기능 저하가 약물 축적에 미치는 영향이 적습니다. 이러한 특성으로 인해 부프레노르핀은 **만성 신부전(CKD) 환자의 통증 관리에 있어 NSAIDs보다 훨씬 안전하고 선호되는 선택지**입니다.</p>
+                            </div>
+                        </div>
+                    </section>
+        
+                    <!-- 8. 약품 정보 및 비용 (신설) -->
+                    <section>
+                        <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-500 pl-3 mb-4">8. 약품 정보 및 비용</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-gray-200">
+                                    <tr>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">제품명 (노스판®)</th>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">포장 단위 가격 (4매)</th>
+                                        <th class="p-3 font-bold uppercase text-gray-600 border border-gray-300">1매당 예상 비용</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">(향정)노스판패취 5㎍/h</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">30,000원</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">7,500원</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">(향정)노스판패취 10㎍/h</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">48,840원</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">12,210원</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="p-3 text-gray-800 border border-gray-300">(향정)노스판패취 20㎍/h</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300">68,900원</td>
+                                        <td class="p-3 text-gray-800 border border-gray-300 font-semibold">17,225원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">* 위 비용은 2025년 7월 기준이며, 공급가 변동에 따라 변경될 수 있습니다. 내부 참고용으로 활용하시기 바랍니다.</p>
+                    </section>
+        
+                    <!-- Footer -->
+                    <footer class="text-center mt-10 pt-6 border-t border-gray-300">
+                        <p class="text-sm text-gray-500">본 프로토콜은 금호동물병원의 자산이며, 의료진의 전문적 판단을 보조하기 위한 것입니다. 실제 적용 시에는 반드시 환자의 개별 상태를 우선적으로 고려해야 합니다.</p>
+                    </footer>
+                </div>
+            </div>
+        </div>
+
 
         <div id="chillEduTab" class="tab-content">
             <div class="card p-6 md:p-8">
