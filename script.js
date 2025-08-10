@@ -5,6 +5,7 @@ const concentrations_cat = {
 };
 const pillStrengths_cat = { gabapentin: 100, amoxicillin_capsule: 250, famotidine: 10 };
 let selectedCatTubeInfo = { size: null, cuff: false, notes: '' };
+let isDirty = false; // 저장되지 않은 변경사항을 추적하기 위한 플래그
 
 // --- 초기화 및 이벤트 리스너 ---
 function initializeAll() {
@@ -37,12 +38,23 @@ function initializeAll() {
     // 오늘 날짜로 방문날짜 초기화
     document.getElementById('visitDate').valueAsDate = new Date();
 
+    // 페이지 이탈 시 저장되지 않은 변경사항 경고
+    window.addEventListener('beforeunload', (event) => {
+        if (isDirty) {
+            event.preventDefault();
+            event.returnValue = '저장되지 않은 변경사항이 있습니다. 정말로 페이지를 떠나시겠습니까?';
+        }
+    });
+
     // 초기 계산 실행
     calculateAll();
+    // 초기 로드 후에는 변경사항이 없는 상태로 설정
+    setTimeout(() => { isDirty = false; }, 100);
 }
 
 // --- 환자 상태 변경 핸들러 ---
 function handleStatusChange(event) {
+    isDirty = true;
     const changedCheckbox = event.target;
     const healthyCheckbox = document.getElementById('statusHealthy');
     const conditionCheckboxes = [
@@ -196,6 +208,7 @@ function applyDashboardData(data) {
         }
 
         calculateAll();
+        isDirty = false; // 데이터를 불러온 후에는 '저장된' 상태로 간주
         alert('기록을 성공적으로 불러왔습니다.');
     } catch (error) {
         console.error("Error applying data:", error);
@@ -224,6 +237,14 @@ function saveDataAsJson() {
         document.body.removeChild(link);
         
         URL.revokeObjectURL(url);
+        
+        isDirty = false; // 저장이 완료되었으므로 '깨끗한' 상태로 설정
+        const saveButton = document.getElementById('saveJsonBtn');
+        saveButton.innerHTML = '<i class="fas fa-check-circle mr-3"></i> 저장 완료!';
+        setTimeout(() => {
+            saveButton.innerHTML = '<i class="fas fa-save mr-3"></i> 기록 저장 (JSON)';
+        }, 2000);
+
     } catch (error) {
         console.error("Error in saveDataAsJson:", error);
         alert("파일을 저장하는 중 오류가 발생했습니다. 개발자 콘솔을 확인해주세요.");
@@ -274,6 +295,7 @@ function saveActiveTabAsImage() {
     
 // --- 메인 계산기 및 프로토콜 ---
 function calculateAll() {
+    isDirty = true; // 어떤 계산이든 실행되면 변경사항이 있는 것으로 간주
     updateAllTitles();
     updateCatTubeDisplay();
     const weightInput = document.getElementById('weight');
@@ -606,6 +628,7 @@ function initializeDischargeTab() {
 }
 
 function calculateDischargeMeds() {
+    isDirty = true; // 퇴원약 정보 변경 시 플래그 설정
     const weight = parseFloat(document.getElementById('weight').value);
     if (isNaN(weight) || weight <= 0) {
          document.querySelector('#dischargeTab #summary').innerHTML = '<p>상단의 환자 체중을 입력해주세요.</p>';
@@ -757,6 +780,7 @@ function calculateTracheaSize() {
 }
 
 function saveCatEtTubeSelection() {
+    isDirty = true; // ET Tube 정보 변경 시 플래그 설정
     const sizeInput = document.getElementById('cat_selectedEtTubeSize');
     if (!sizeInput.value) { alert('최종 ET Tube 사이즈를 입력해주세요.'); sizeInput.focus(); return; }
     selectedCatTubeInfo.size = parseFloat(sizeInput.value);
