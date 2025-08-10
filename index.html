@@ -50,7 +50,7 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- '고양이 퇴원약'으로부터 가져온 스타일 --- */
+        /* --- '고양이 퇴원약' 스타일 --- */
         #dischargeTab h2 { color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 10px; margin-top: 0; }
         #dischargeTab .dashboard-container { max-width: 1200px; margin: auto; }
         #dischargeTab .section { background-color: white; padding: 25px; margin-bottom: 25px; border-radius: 8px; }
@@ -71,41 +71,51 @@
         .checkbox-group label { font-weight: normal; display: inline-block; margin-right: 15px; }
         .checkbox-group input { margin-right: 5px; vertical-align: middle; }
         
-        /* --- Chill 교육 탭으로부터 가져온 스타일 --- */
+        /* --- Chill 교육 탭 스타일 --- */
         #chillEduTab .table-header { background-color: #f9fafb; font-weight: 600; color: #374151; }
         
-        /* --- Etco2 Tab Styles --- */
-        .protocol-card {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        .protocol-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
-        }
-        #etco2Tab h2 {
-            border-bottom: 2px solid;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        #etco2Tab li {
-            padding-bottom: 0.75rem;
-        }
-        .highlight {
-            background-color: #fef9c3;
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.25rem;
-            font-weight: 600;
-        }
+        /* --- Etco2 Tab 스타일 --- */
+        .protocol-card { transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .protocol-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1); }
+        #etco2Tab h2 { border-bottom: 2px solid; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        #etco2Tab li { padding-bottom: 0.75rem; }
+        .highlight { background-color: #fef9c3; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-weight: 600; }
 
-        /* --- Norspan Patch Tab Styles --- */
-        @media print {
-            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
-            .no-print { display: none; }
-        }
-        #norspanTab {
-             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
-        }
+        /* --- Norspan Patch Tab 스타일 --- */
+        @media print { .no-print { display: none; } }
+        #norspanTab { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; }
+
+        /* --- 공격성 고양이 탭 스타일 --- */
+        #aggressiveCatTab .tab { padding: 0.75rem 1.25rem; cursor: pointer; border-bottom: 2px solid transparent; color: #6b7280; font-weight: 500; }
+        #aggressiveCatTab .tab.active { color: #3b82f6; border-bottom-color: #3b82f6; font-weight: 600; }
+        #aggressiveCatTab .result-table th, #aggressiveCatTab .result-table td { padding: 0.75rem; text-align: left; }
+        #aggressiveCatTab .result-table th { background-color: #f3f4f6; }
+        #aggressiveCatTab .result-table tr:nth-child(even) { background-color: #fafafa; }
+        #aggressiveCatTab .pill { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
+        #aggressiveCatTab .pill-blue { background-color: #dbeafe; color: #1e40af; }
+        #aggressiveCatTab .pill-green { background-color: #d1fae5; color: #065f46; }
+        #aggressiveCatTab .pill-yellow { background-color: #fef9c3; color: #854d0e; }
+        #aggressiveCatTab .pill-red { background-color: #fee2e2; color: #991b1b; }
+        
+        /* --- 환기 관리 & FiCO2 탭 스타일 --- */
+        .manual-vent-container, .fico2-container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .manual-vent-container h1, .fico2-container h1, .manual-vent-container h2, .fico2-container h2, .manual-vent-container h3, .fico2-container h3 { color: #0056b3; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 30px; }
+        .manual-vent-container h1, .fico2-container h1 { text-align: center; color: #004085; }
+        .protocol-section { margin-bottom: 30px; }
+        .manual-vent-container ul, .fico2-container ul, .manual-vent-container ol, .fico2-container ol { padding-left: 20px; }
+        .manual-vent-container li, .fico2-container li { margin-bottom: 10px; }
+        .highlight-danger { color: #d9534f; font-weight: bold; }
+        .note { background-color: #e7f3fe; border-left: 5px solid #0056b3; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .warning { background-color: #fdf7e7; border-left: 5px solid #f0ad4e; padding: 15px; margin-top: 15px; border-radius: 5px; font-weight: bold; }
+        .step { font-weight: bold; color: #0056b3; }
+        .manual-vent-container table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .manual-vent-container th, .manual-vent-container td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .manual-vent-container th { background-color: #f2f2f2; }
+        .fico2-container .emergency-header { background-color: #dc3545; color: white; }
+        .fico2-container .step-card { background-color: white; border-left: 5px solid #0d6efd; margin-bottom: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .fico2-container .check-card { background-color: white; border-left: 5px solid #ffc107; margin-bottom: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .fico2-container .solution-box { background-color: #e9f7ef; border: 1px solid #198754; }
+        .fico2-container .title-icon { width: 4rem; height: 4rem; }
 
     </style>
 </head>
@@ -113,7 +123,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.2</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">고양이 통합 마취 및 교육 대시보드 v4.3</h1>
             <p class="mt-2 text-lg text-gray-600">금호동물병원 실전 워크플로우 (Anes AI & Guardian EDU)</p>
         </header>
 
@@ -161,8 +171,10 @@
             <div class="flex flex-wrap justify-around border-b border-gray-200">
                 <button class="tab-button active" onclick="openTab(event, 'prepTab')"><i class="fas fa-pills mr-2"></i>마취 준비</button>
                 <button class="tab-button" onclick="openTab(event, 'etTubeTab')"><i class="fa-solid fa-staff-snake mr-2"></i>ET Tube</button>
-                <button class="tab-button" onclick="openTab(event, 'emergencyTab')"><i class="fas fa-heart-pulse mr-2"></i>응급상황 대처</button>
-                <button class="tab-button" onclick="openTab(event, 'etco2Tab')"><i class="fas fa-chart-line mr-2"></i>EtCO2 관리</button>
+                <button class="tab-button" onclick="openTab(event, 'emergencyTab')"><i class="fas fa-heart-pulse mr-2"></i>응급상황</button>
+                <button class="tab-button" onclick="openTab(event, 'aggressiveCatTab')"><i class="fas fa-cat mr-2"></i>공격성 고양이</button>
+                <button class="tab-button" onclick="openTab(event, 'ventilationTab')"><i class="fas fa-lungs mr-2"></i>환기 관리</button>
+                <button class="tab-button" onclick="openTab(event, 'fico2Tab')"><i class="fas fa-wind mr-2"></i>FiCO2 대처</button>
                 <button class="tab-button" onclick="openTab(event, 'norspanTab')"><i class="fas fa-band-aid mr-2"></i>노스판패취</button>
                 <button class="tab-button" onclick="openTab(event, 'chillEduTab')"><i class="fas fa-graduation-cap mr-2"></i>Chill 교육</button>
                 <button class="tab-button" onclick="openTab(event, 'dischargeTab')"><i class="fas fa-file-prescription mr-2"></i>퇴원약 조제</button>
@@ -385,131 +397,354 @@
             </div>
         </div>
 
-        <div id="etco2Tab" class="tab-content">
-            <div class="max-w-7xl mx-auto">
-                <!-- 문서 제목 -->
-                <div class="text-center mb-10">
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">마취 환자 환기 관리 통합 프로토콜</h1>
-                    <p class="text-lg text-gray-600 mt-2">민드레이 Veta5 마취기 기준 (v2.1)</p>
-                </div>
+        <div id="aggressiveCatTab" class="tab-content">
+            <div class="max-w-6xl mx-auto">
+                <!-- 헤더 -->
+                <header class="text-center mb-8">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">사나운 고양이 진료 프로토콜 대시보드</h1>
+                    <p class="mt-2 text-lg text-gray-600">Fear-Free & Low-Stress 진료를 위한 임상 가이드</p>
+                    <p class="mt-1 text-sm text-blue-600 font-semibold">"우리의 목표는 전쟁이 아닌 평화입니다."</p>
+                </header>
         
-                <!-- 기본 원칙 -->
-                <div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-green-500">
-                    <div class="flex items-center">
-                        <svg class="w-10 h-10 text-green-500 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800">환기 관리 목표</h3>
-                            <p class="text-gray-700"><span class="font-bold">EtCO2:</span> 35-45 mmHg, <span class="font-bold">FiCO2:</span> 0 mmHg 유지</p>
-                            <p class="text-gray-600 mt-1">EtCO2는 환자의 환기 상태를, FiCO2는 마취 회로의 이상 유무를 알려주는 핵심 지표입니다.</p>
-                        </div>
+                <!-- 계산기 섹션 -->
+                <div class="card p-6 md:p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">용량 계산기</h2>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+                        <label for="aggCatWeight" class="text-xl font-semibold text-gray-700">고양이 체중:</label>
+                        <input type="number" id="aggCatWeight" placeholder="kg" class="input-field max-w-xs" oninput="calculateAggCatProtocol()">
                     </div>
-                </div>
-        
-                <!-- 프로토콜 섹션 -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
-                    <!-- EtCO2 저하 카드 -->
-                    <div class="protocol-card bg-white rounded-lg p-6 border-t-8 border-blue-500">
-                        <h2 class="text-2xl font-bold text-blue-700 flex items-center border-blue-700">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>
-                            EtCO2 저하 (Hypocapnia, &lt; 35 mmHg)
-                        </h2>
-                        <div class="mb-4">
-                            <!-- 이전 프로토콜의 '주요 원인'이 아래 '즉시 확인'과 '대응 프로토콜'에 행동 중심으로 통합되었습니다. -->
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">🚨 즉시 확인! (환자 상태 먼저!)</h3>
-                            <ul class="list-disc list-inside text-gray-700">
-                                <li><span class="font-bold">저혈압 (폐관류 감소):</span> <span class="highlight">평균 동맥압(MAP) &lt; 60 mmHg</span> 인가? (가장 위험!)</li>
-                                <li><span class="font-bold">저체온증 (대사율 저하):</span> 체온이 37.0°C 미만으로 떨어졌는가?</li>
-                                <li><span class="font-bold">과환기:</span> 마취 심도가 얕아 환자가 헐떡이는가? 또는 인공호흡 설정이 과한가?</li>
+                    <!-- 탭 -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex justify-center space-x-4 md:space-x-8" aria-label="Tabs">
+                            <button id="aggcat-tab-previsit" class="tab active" onclick="switchAggCatTab('previsit')">1. 내원 전 경구 약물</button>
+                            <button id="aggcat-tab-im" class="tab" onclick="switchAggCatTab('im')">2. 원내 IM 진정/마취</button>
+                        </nav>
+                    </div>
+        
+                    <!-- 탭 컨텐츠 -->
+                    <div id="aggcat-content-previsit">
+                        <h3 class="text-xl font-semibold text-center text-gray-700 mb-4">Pre-Visit Pharmaceuticals (PVP)</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- 가바펜틴 단독 -->
+                            <div class="border p-4 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2 text-blue-700">옵션 1: 가바펜틴 단독 요법</h4>
+                                <p class="text-sm text-gray-600 mb-3">대부분의 불안/공격성에 1차적으로 적용합니다.</p>
+                                <div id="result-gabapentin" class="text-center bg-blue-50 p-4 rounded-md">체중을 입력하세요.</div>
+                            </div>
+                            <!-- 가바펜틴 + 트라조돈 -->
+                            <div class="border p-4 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2 text-red-700">옵션 2: 가바펜틴 + 트라조돈 병용 요법</h4>
+                                <p class="text-sm text-gray-600 mb-3">극도로 예민하거나 과거 PVP 실패 경험이 있는 경우 적용합니다.</p>
+                                <div id="result-combo" class="text-center bg-red-50 p-4 rounded-md">체중을 입력하세요.</div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div id="aggcat-content-im" style="display: none;">
+                        <h3 class="text-xl font-semibold text-center text-gray-700 mb-4">In-Hospital IM Sedation/Anesthesia</h3>
+                        <p class="text-center text-sm text-gray-600 mb-4">알팍산 + 부토판 + 미다졸람 칵테일 (환자 상태와 시술 목적에 따라 용량 조절)</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm result-table rounded-lg overflow-hidden">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1/4">약물 (농도)</th>
+                                        <th class="w-1/4">목표</th>
+                                        <th class="w-1/4">용량 (mg/kg)</th>
+                                        <th class="w-1/4">계산 결과</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="result-im-aggcat">
+                                    <tr><td colspan="4" class="text-center">체중을 입력하세요.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 교육 섹션 -->
+                <div class="card p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">핵심 지식 및 프로토콜 해설</h2>
+                    <div class="space-y-8">
+                        <!-- 약물별 작용 원리 -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3 border-b pb-2">약물별 작용 원리: 우리 무기 이해하기</h3>
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-blue">가바펜틴</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">뇌의 과흥분을 막는 <strong class="text-blue-600">'볼륨 조절기'</strong>. 공포 반응의 크기를 줄여줍니다. (이벤트성 약물)</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-red">트라조돈</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">세로토닌 시스템에 작용하는 <strong class="text-red-600">'정서 안정제'</strong>. 불안이라는 감정 자체를 완화합니다. (이벤트성 약물)</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-yellow">플루옥세틴</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">뇌 구조를 서서히 바꾸는 <strong class="text-yellow-600">'건축가'</strong>. 만성 불안에 사용하며, 효과 발현에 수 주가 걸려 <strong class="font-bold">내원 전 처치에는 부적합</strong>합니다. (유지 요법 약물)</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-green">알팍산</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">GABA 수용체를 활성화하는 <strong class="text-green-600">'엔진'</strong>. 주된 진정/마취 효과를 담당하며 심혈관계 안정성이 뛰어납니다.</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-green">부토판</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">진통 효과와 함께 진정을 돕는 <strong class="text-green-600">'보조 부스터'</strong>. 칵테일의 효과를 부드럽게 증강시킵니다.</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-bold text-gray-800"><span class="pill pill-green">미다졸람</span></h4>
+                                    <p class="text-sm text-gray-600 mt-1">불안 해소 및 근육을 이완시키는 <strong class="text-green-600">'윤활유'</strong>. 부드러운 진정을 유도하고 회복의 질을 높입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- IM 주사 통증 -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3 border-b pb-2">IM 주사 통증에 대한 고찰: 부드러움의 가치</h3>
+                            <div class="space-y-4 text-gray-700">
+                                <p>환자가 겪을 통증과 불편감을 최소화하는 것은 우리의 중요한 의무입니다. 우리가 사용하는 ABM 칵테일은 다른 프로토콜에 비해 월등히 부드럽습니다.</p>
+                                <div class="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+                                    <h4 class="font-bold text-green-800">ABM 칵테일 vs DZT(도미토/조레틸/트라마돌) 칵테일</h4>
+                                    <p class="text-sm mt-1"><strong>ABM 칵테일</strong>의 구성 약물(알팍산, 부토판, 미다졸람)은 주사 시 화학적 자극이나 통증이 거의 없습니다. 반면, <strong>조레틸(Zoletil®)</strong>은 pH가 낮아 IM 주사 시 매우 심한 통증과 작열감을 유발할 수 있습니다. ABM 칵테일은 환자에게 훨씬 더 편안한 선택입니다.</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">통증 최소화를 위한 임상 팁:</h4>
+                                    <ul class="list-disc list-inside mt-2 space-y-2">
+                                        <li><strong>주사량 분할 (Split the Dose):</strong> 총주사량이 1.5ml를 초과하는 경우, 양쪽 허리 근육 등에 절반씩 나누어 주사하여 물리적 압박감을 줄여줍니다.</li>
+                                        <li><strong>새롭고 가는 바늘 사용:</strong> 항상 새 바늘(23-25G 권장)을 사용하여 피부 천공 시 통증을 최소화합니다.</li>
+                                        <li><strong>자신감 있는 주사 테크닉:</strong> 정확한 부위에 부드럽고 신속하게 주사하여 고양이의 긴장감을 줄입니다.</li>
+                                        <li><strong>적절한 부위 선택:</strong> 척추 옆 허리 근육(요추부 근육)처럼 근육량이 큰 부위를 선택합니다.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 안전 수칙 -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3 border-b pb-2">안전 수칙 및 주의사항</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><strong>보호자 교육이 최우선:</strong> 내원 전 약물 투여 시, 진정/운동실조는 '목표 효과'임을 명확히 설명하고, 높은 곳에서 떨어지지 않도록 안전한 장소에 격리할 것을 반드시 안내해야 합니다.</li>
+                                <li><strong>환자 개별화:</strong> 모든 용량은 '출발점'일 뿐입니다. 노령, 쇠약, 기저질환이 있는 환자는 항상 최저 용량에서 시작하세요.</li>
+                                <li><strong>모니터링은 필수:</strong> IM 진정/마취 시, 심박수, 호흡수, 체온, SpO2를 지속적으로 모니터링해야 합니다.</li>
+                                <li><strong>항상 대비:</strong> 산소 공급원, 기관 삽관 키트, 응급 약물은 항상 손 닿는 곳에 준비되어 있어야 합니다.</li>
                             </ul>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">🛠️ 대응 프로토콜 (단계별)</h3>
-                            <ol class="list-decimal list-inside text-gray-700 space-y-3">
-                                <li><span class="font-semibold">생체 활력 징후 교정:</span>
-                                    <ul class="list-disc list-inside ml-4 mt-1">
-                                        <li><span class="font-bold">저혈압 시:</span> 마취제 농도 감소, 수액 증량, 승압제 사용을 즉시 고려합니다.</li>
-                                        <li><span class="font-bold">저체온증 시:</span> 온풍기, 보온매트 등 보온 장비를 최대로 가동합니다.</li>
-                                    </ul>
-                                </li>
-                                <li><span class="font-semibold text-blue-600">인공호흡기 설정 조절 (과환기 교정):</span>
-                                    <ul class="list-disc list-inside ml-4 mt-1">
-                                        <li><span class="font-bold">1순위:</span> Veta5 설정에서 <span class="bg-blue-100 px-1 rounded">'호흡수(RR)'</span>를 분당 1~2회 낮춥니다.</li>
-                                        <li><span class="font-bold">2순위:</span> 그래도 낮으면 <span class="bg-blue-100 px-1 rounded">'1회호흡량(VT)'</span>을 10% 정도 줄입니다.</li>
-                                    </ul>
-                                </li>
-                                <li><span class="font-semibold">장비 점검:</span> EtCO2 샘플링 라인과 기관튜브 커프의 누출 여부를 확인합니다.</li>
-                            </ol>
-                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ventilationTab" class="tab-content">
+            <div class="manual-vent-container">
+                <h1>마취 환기 관리 프로토콜</h1>
+                <p style="text-align:center; font-style:italic;">작성자: 수의 마취학 AI 튜터 '아네스 (Anes)'</p>
         
-                    <!-- EtCO2 상승 카드 -->
-                    <div class="protocol-card bg-white rounded-lg p-6 border-t-8 border-red-500">
-                        <h2 class="text-2xl font-bold text-red-700 flex items-center border-red-700">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                            EtCO2 상승 (Hypercapnia, &gt; 45 mmHg)
-                        </h2>
-                        <div class="mb-4">
-                            <!-- 이전 프로토콜의 '주요 원인'이 아래 '즉시 확인'과 '대응 프로토콜'에 행동 중심으로 통합되었습니다. -->
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">🚨 즉시 확인! (장비 먼저!)</h3>
-                            <ul class="list-disc list-inside text-gray-700">
-                                <li><span class="font-bold">CO2 재호흡:</span> 모니터의 <span class="highlight">FiCO2 수치가 0 이상인가?</span> (가장 흔한 원인!)</li>
-                                <li><span class="font-bold">환기 저하:</span> 흉곽 움직임이 너무 작거나 호흡이 얕은가? (마취 심도가 너무 깊은가?)</li>
-                                <li><span class="font-bold">대사율 증가:</span> 환자가 떨거나, 발열, 악성고열증이 의심되는가?</li>
+                <div class="protocol-section">
+                    <h2>Part 1. 수동 환기 (Manual Ventilation)</h2>
+                    
+                    <h3>1.1. 수동 환기의 시작 시점</h3>
+                    <p>다음과 같은 상황에서 환자의 안전을 위해 즉시 수동 환기를 시작합니다.</p>
+                    <ul>
+                        <li><span class="highlight-danger">무호흡 (Apnea):</span> 환자의 자발 호흡이 30초 이상 관찰되지 않을 때</li>
+                        <li><span class="highlight-danger">심각한 환기 저하 (Severe Hypoventilation):</span>
+                            <ul>
+                                <li><strong>ETCO₂ > 50 mmHg:</strong> 가장 중요한 지표. 45-50 mmHg 범위는 주의 깊은 관찰, 50 mmHg 초과는 적극적 개입이 필요합니다.</li>
+                                <li><strong>호흡수 저하 (Bradypnea):</strong> 분당 호흡수가 8회 미만일 때</li>
+                                <li><strong>얕은 호흡:</strong> 호흡수는 정상이더라도, 흉곽의 움직임이 미미하여 1회 호흡량이 부족하다고 판단될 때</li>
                             </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">🛠️ 대응 프로토콜 (단계별)</h3>
-                            <ol class="list-decimal list-inside text-gray-700 space-y-3">
-                                <li><span class="font-semibold text-red-600">재호흡 원인 확인 및 제거:</span>
-                                    <ul class="list-disc list-inside ml-4 mt-1">
-                                        <li><span class="font-bold">FiCO2 > 2 mmHg 시:</span> 즉시 <span class="bg-red-100 px-1 rounded">소다라임 교체</span>를 준비합니다. (아래 교체 프로토콜 참조)</li>
-                                        <li><span class="font-bold">마취기 밸브 점검:</span> 호기/흡기 밸브가 오염되거나 붙지 않았는지 확인합니다.</li>
-                                    </ul>
-                                </li>
-                                <li><span class="font-semibold">환기 개선:</span>
-                                     <ul class="list-disc list-inside ml-4 mt-1">
-                                        <li><span class="font-bold">1순위:</span> Veta5 설정에서 <span class="bg-red-100 px-1 rounded">'호흡수(RR)'</span>를 분당 1~2회 높입니다.</li>
-                                        <li><span class="font-bold">2순위:</span> 그래도 높으면 <span class="bg-red-100 px-1 rounded">'1회호흡량(VT)'</span>을 10% 정도 늘립니다.</li>
-                                    </ul>
-                                </li>
-                                <li><span class="font-semibold">마취 심도 조절:</span> 마취가 너무 깊어 호흡이 억제된 경우, 마취제 농도를 줄여 환기를 개선합니다.</li>
-                            </ol>
-                        </div>
+                        </li>
+                        <li><span class="highlight-danger">주기적인 한숨 환기 (Sigh Ventilation):</span> 장시간 마취 시 폐허탈(atelectasis) 예방을 위해 10~15분마다 1~2회 실시를 권장합니다.</li>
+                    </ul>
+        
+                    <h3>1.2. 수동 환기의 목표와 종료 시점</h3>
+                    <p>수동 환기는 무작정 계속하는 것이 아니라, 명확한 목표를 가지고 시행해야 합니다.</p>
+                    <ol>
+                        <li><span class="step">1단계 목표: 생체 지표의 정상화</span>
+                            <ul>
+                                <li><strong>ETCO₂가 목표 범위(35-45 mmHg) 안으로 안정되는 것</strong>이 가장 중요한 종료 기준입니다.</li>
+                                <li>수동 환기를 통해 ETCO₂가 정상화되고, 환자의 자발 호흡이 분당 8회 이상, 충분한 깊이로 회복되면 수동 환기를 멈추고 환자를 관찰합니다.</li>
+                            </ul>
+                        </li>
+                        <li><span class="step">2단계 목표: 안정적인 자발 호흡 유지 확인</span>
+                            <ul>
+                                <li>수동 환기를 멈춘 후, 환자 스스로 안정적인 ETCO₂와 호흡 양상을 유지하는지 최소 5분 이상 지켜봅니다.</li>
+                                <li>만약 자발 호흡만으로 ETCO₂가 다시 상승한다면, 이는 환자의 환기 능력이 여전히 불충분함을 의미합니다.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <div class="note">
+                        <strong>의사결정의 기로:</strong> 자발 호흡이 불충분할 때, 우리는 다음을 결정해야 합니다.
+                        <ol>
+                            <li>마취 심도를 낮춰 자발 호흡이 회복되도록 유도한다.</li>
+                            <li>간헐적으로 수동 환기를 계속하며 보조한다.</li>
+                            <li>장시간 수술이 예상된다면, 안정적인 환기를 위해 <strong>자동 환기로 전환</strong>한다.</li>
+                        </ol>
                     </div>
                 </div>
         
-                <!-- 소다라임 교체 프로토콜 -->
-                <div class="mt-10 bg-white rounded-lg p-6 shadow-md border-l-4 border-yellow-500">
-                    <h2 class="text-2xl font-bold text-yellow-700 border-yellow-500 flex items-center">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5V4H4zm0 0l5 5m-5 0h5v5H4v-5zm0 0l5-5m6 5v5h5V9h-5zm0 0l5 5m-5 0h5v5h-5v-5zm0 0l5-5"></path></svg>
-                        소다라임 (CO₂ 흡수제) 교체 프로토콜
-                    </h2>
-                    <p class="text-gray-600 mb-6">아래 기준을 종합적으로 판단하여 교체 시기를 결정합니다. (우선순위 순)</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-lg font-bold text-gray-800">1. FiCO₂ 수치 (가장 중요)</p>
-                            <p class="text-2xl font-extrabold text-red-600 my-2">≥ 2-3 mmHg</p>
-                            <p class="text-gray-600">수치가 0 이상이면 기능 저하 신호. 즉시 교체를 고려해야 합니다.</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-lg font-bold text-gray-800">2. 색깔 변화</p>
-                            <p class="text-2xl font-extrabold text-purple-600 my-2">≥ 50-70%</p>
-                            <p class="text-gray-600">캐니스터의 절반 이상이 보라색으로 변했을 때 교체합니다. (색깔 복원 주의!)</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-lg font-bold text-gray-800">3. 사용 시간 (보조 지표)</p>
-                            <p class="text-2xl font-extrabold text-blue-600 my-2">8 ~ 12 시간</p>
-                            <p class="text-gray-600">사용 시간을 라벨에 기록하고, 기준 도달 시 교체를 고려합니다.</p>
-                        </div>
+                <div class="protocol-section">
+                    <h2>Part 2. 자동 환기 (Automatic Ventilation)로의 전환</h2>
+                    
+                    <h3>2.1. 자동 환기의 적응증</h3>
+                    <ul>
+                        <li><strong>장시간의 마취 (> 45-60분):</strong> 인력의 피로도를 줄이고, 일관성 있고 안정적인 환기를 제공합니다.</li>
+                        <li><strong>지속적인 환기 저하:</strong> 마취 심도 조절만으로 환기가 개선되지 않는 경우</li>
+                        <li><strong>개흉 수술 (Thoracotomy):</strong> 흉강이 열려 음압을 형성할 수 없으므로, 양압 환기가 필수적입니다.</li>
+                        <li><strong>정밀한 환기 조절이 필요한 환자:</strong> 뇌압 상승 환자, 중증 환자 등</li>
+                    </ul>
+        
+                    <h3>2.2. 자동 환기 전환 절차 (Step-by-Step)</h3>
+                    <p>이 절차는 안전을 위해 반드시 순서대로 따라야 합니다.</p>
+                    
+                    <h4>1단계: 인공호흡기 초기 설정</h4>
+                    <p>Auto 모드로 전환하기 전, 기계에 기본적인 환기 값을 미리 설정합니다.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>파라미터</th>
+                                <th>초기 설정값 (고양이/소형견 기준)</th>
+                                <th>설명</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1회 호흡량 (Tidal Volume)</strong></td>
+                                <td>10-15 ml/kg</td>
+                                <td>환자 체중(kg)에 10~15를 곱한 값 (mL)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>호흡수 (Resp. Rate)</strong></td>
+                                <td>10-15 회/분</td>
+                                <td>ETCO₂를 보며 조절할 주요 변수</td>
+                            </tr>
+                            <tr>
+                                <td><strong>흡기:호기 비율 (I:E Ratio)</strong></td>
+                                <td>1 : 2 또는 1 : 3</td>
+                                <td>숨을 들이쉬는 시간보다 내쉬는 시간이 2~3배 길어야 함</td>
+                            </tr>
+                            <tr>
+                                <td><strong>최대 흡기압 (PIP Limit)</strong></td>
+                                <td><span class="highlight-danger">15-20 cmH₂O</span></td>
+                                <td>폐 손상을 막는 가장 중요한 안전장치</td>
+                            </tr>
+                        </tbody>
+                    </table>
+        
+                    <h4>2단계: 모드 전환</h4>
+                    <ol>
+                        <li><span class="step">현재 'Manual' 모드인지 확인합니다.</span></li>
+                        <li><span class="warning">매우 중요: APL 밸브(파란색 다이얼)를 'MIN'으로 완전히 열려 있는지 반드시 확인합니다.</span> 밸브가 잠겨있으면 모드 전환 시 압력 문제가 발생할 수 있습니다.</li>
+                        <li><span class="step">Auto/Manual 선택 다이얼을 'Manual'에서 'Auto'로 단호하게 돌립니다.</span></li>
+                    </ol>
+        
+                    <h4>3단계: 작동 확인 및 환자 관찰</h4>
+                    <ul>
+                        <li>인공호흡기의 벨로우즈(bellows)나 피스톤이 설정된 값에 맞춰 움직이는지 확인합니다.</li>
+                        <li>환자의 흉곽이 기계의 작동에 맞춰 규칙적으로 오르내리는지 눈으로 확인합니다.</li>
+                        <li>환자 감시 모니터의 변화를 주시합니다.
+                            <ul>
+                                <li>압력계의 바늘 또는 압력 파형이 설정한 PIP Limit을 넘지 않는지 확인합니다.</li>
+                                <li>ETCO₂ 파형이 규칙적으로 나타나는지 확인합니다.</li>
+                            </ul>
+                        </li>
+                    </ul>
+        
+                    <h4>4단계: 설정값 미세 조정</h4>
+                    <ul>
+                        <li>인공호흡기 작동 후 5분간 ETCO₂ 수치를 관찰하여 설정값을 미세 조정합니다.
+                            <ul>
+                                <li><strong>ETCO₂가 너무 높으면 (> 45 mmHg):</strong> 호흡수를 1~2회 늘리거나, 1회 호흡량을 10% 정도 증량합니다.</li>
+                                <li><strong>ETCO₂가 너무 낮으면 (< 35 mmHg):</strong> 호흡수를 1~2회 줄이거나, 1회 호흡량을 10% 정도 감량합니다.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="note">
+                        <strong>기억하십시오:</strong> 인공호흡기는 '걸어놓고 잊어버리는' 장비가 아닙니다. 환자의 상태, 마취 심도, 수술 자극에 따라 환기 요구량은 계속 변하므로, 주기적으로 환자와 모니터를 확인하고 설정값을 조절해주어야 합니다.
                     </div>
                 </div>
+            </div>
+        </div>
         
-                <!-- 푸터 -->
-                <div class="text-center mt-10 pt-6 border-t">
-                    <p class="text-sm text-gray-500">본 프로토콜은 일반적인 가이드라인입니다. 모든 임상적 판단의 최종 책임은 담당 수의사에게 있습니다.</p>
-                    <p class="text-xs text-gray-400 mt-2">AI Tutor 'Anes' on behalf of the Hospital Director (v2.1)</p>
+        <div id="fico2Tab" class="tab-content">
+            <div class="fico2-container">
+                <header class="emergency-header p-6 rounded-xl text-center mb-8 flex items-center justify-center flex-col">
+                    <i class="fas fa-triangle-exclamation title-icon text-5xl mb-4"></i>
+                    <h1 class="text-4xl font-extrabold" style="color:white; border:none;">FiCO2 상승 비상 프로토콜</h1>
+                    <p class="mt-2 text-lg">금호동물병원 | Mindray veta5 마취기 기준</p>
+                </header>
+        
+                <div class="info-box bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
+                    <p class="text-blue-800"><strong class="font-bold">Anes의 조언:</strong> 원장님, FiCO2 상승은 '환자가 내뱉은 CO2를 다시 마시고 있다'는 의미입니다. 원인은 대부분 마취기 호흡 회로, 특히 CO2 흡수 시스템에 있습니다. 아래 프로토콜은 가장 가능성이 높은 원인부터 순서대로 점검하도록 설계되었습니다.</p>
                 </div>
+        
+                <section class="mb-10">
+                    <h2 class="mb-4 text-gray-800 border-b-2 pb-2"><i class="fas fa-bolt mr-2 text-blue-600"></i>Phase 1: 즉각 조치 (1분 내)</h2>
+                    <div class="step-card p-6 rounded-lg">
+                        <h3 class="text-blue-700 mb-3 flex items-center" style="border:none; margin:0;"><span class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3 text-lg">1</span>환자 상태 확인 및 알람 인지</h3>
+                        <ul class="list-disc list-inside ml-4 space-y-2 mt-3">
+                            <li>가장 먼저 환자를 확인합니다. EtCO2, SpO2, 심박수, 혈압 등 다른 활력 징후는 안정적인지 평가합니다.</li>
+                            <li>FiCO2가 일시적인 현상인지, 지속적으로 3~5 mmHg 이상으로 유지되는지 확인합니다.</li>
+                        </ul>
+                    </div>
+                    <div class="step-card p-6 rounded-lg">
+                        <h3 class="text-blue-700 mb-3 flex items-center" style="border:none; margin:0;"><span class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3 text-lg">2</span>신선가스 유량(FGF) 증가</h3>
+                        <p class="ml-11">가장 빠르고 효과적인 응급 조치입니다. 일시적으로 회로 내 CO2를 씻어내는(washout) 효과가 있습니다.</p>
+                        <div class="solution-box p-3 mt-3 ml-4 rounded-lg">
+                            <p class="font-bold text-green-800"><i class="fas fa-faucet-drip mr-2"></i>조치: 산소 유량을 <strong class="text-xl">2~3 L/min</strong>으로 즉시 올립니다.</p>
+                        </div>
+                    </div>
+                    <div class="step-card p-6 rounded-lg">
+                        <h3 class="text-blue-700 mb-3 flex items-center" style="border:none; margin:0;"><span class="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full mr-3 text-lg">3</span>수동 환기로 전환</h3>
+                        <p class="ml-11">기계(Auto) 모드에서 수동(Manual) 모드로 전환하여 직접 환기를 조절하고 환자의 호흡 저항이나 회로 이상을 감지합니다.</p>
+                        <div class="solution-box p-3 mt-3 ml-4 rounded-lg">
+                            <p class="font-bold text-green-800"><i class="fas fa-toggle-on mr-2"></i>조치: veta5의 Auto/Manual 스위치를 <strong class="text-xl">'Manual'</strong>로 돌리고, 호흡백을 이용해 환기를 시작합니다.</p>
+                        </div>
+                    </div>
+                </section>
+        
+                <section>
+                    <h2 class="mb-4 text-gray-800 border-b-2 pb-2"><i class="fas fa-search mr-2 text-yellow-500"></i>Phase 2: 원인 탐색 및 해결</h2>
+                    <div class="check-card p-6 rounded-lg">
+                        <h3 class="text-yellow-700 mb-3 flex items-center" style="border:none; margin:0;"><span class="flex items-center justify-center w-8 h-8 bg-yellow-500 text-white rounded-full mr-3 text-lg">A</span>CO2 흡수제(소다라임) 점검 <span class="text-sm font-normal ml-2">(가장 흔한 원인)</span></h3>
+                        <ul class="list-disc list-inside ml-4 space-y-2 mt-3">
+                            <li><strong>색깔 변화:</strong> 흡수제의 색이 규정된 소진 색(보라색 등)으로 변했는지 확인합니다.</li>
+                            <li><strong>경화/채널링(Channeling):</strong> 흡수제가 돌처럼 딱딱하게 굳었거나, 가스가 흡수제를 통과하지 않고 지나갈 수 있는 통로(채널)가 형성되었는지 확인합니다.</li>
+                            <li><strong>캐니스터 장착:</strong> CO2 캐니스터가 헐겁게 장착되어 가스가 새는지 확인합니다.</li>
+                        </ul>
+                        <div class="solution-box p-3 mt-3 ml-4 rounded-lg">
+                            <p class="font-bold text-green-800"><i class="fas fa-exchange-alt mr-2"></i>해결책: 소다라임이 소진되었다면 즉시 교체합니다. 교체가 어려운 상황이라면 높은 FGF를 유지하며 마취를 진행하거나, 비재호흡회로(Bain 등)로 교체하는 것을 고려합니다.</p>
+                        </div>
+                    </div>
+                     <div class="check-card p-6 rounded-lg">
+                        <h3 class="text-yellow-700 mb-3 flex items-center" style="border:none; margin:0;"><span class="flex items-center justify-center w-8 h-8 bg-yellow-500 text-white rounded-full mr-3 text-lg">B</span>호기/흡기 단방향 밸브(Unidirectional Valves) 점검</h3>
+                         <p class="ml-11">밸브가 수분이나 이물질로 인해 달라붙어(sticking) 제대로 닫히지 않으면, 내뱉은 가스가 흡기 쪽으로 역류하여 FiCO2를 상승시킵니다.</p>
+                        <ul class="list-disc list-inside ml-4 space-y-2 mt-2">
+                            <li><strong>육안 확인:</strong> veta5 상단의 투명한 밸브 돔을 통해, 환자의 호흡 주기에 맞춰 밸브 디스크가 정상적으로 오르내리는지 관찰합니다.
+                                <ul class="list-inside ml-6 text-sm" style="list-style-type: circle;">
+                                    <li>흡기 시: 흡기 밸브 열림, 호기 밸브 닫힘</li>
+                                    <li>호기 시: 호기 밸브 열림, 흡기 밸브 닫힘</li>
+                                </ul>
+                            </li>
+                             <li><strong>역류 확인:</strong> 밸브 중 하나라도 계속 열려있다면 역류가 발생하고 있는 것입니다.</li>
+                        </ul>
+                        <div class="solution-box p-3 mt-3 ml-4 rounded-lg">
+                            <p class="font-bold text-green-800"><i class="fas fa-tools mr-2"></i>해결책: 밸브 돔을 가볍게 두드려 일시적으로 해결을 시도할 수 있습니다. 근본적인 해결을 위해서는 마취 종료 후 회로를 분해하여 밸브를 세척하고 건조해야 합니다. 문제 해결 전까지 높은 FGF를 유지합니다.</p>
+                        </div>
+                    </div>
+                </section>
+        
+                <section class="mt-10">
+                     <h2 class="mb-4 text-gray-800 border-b-2 pb-2"><i class="fas fa-shield-alt mr-2 text-gray-600"></i>예방 및 장비 관리</h2>
+                     <div class="bg-gray-100 p-6 rounded-lg">
+                         <ul class="list-disc list-inside space-y-3">
+                             <li><strong>마취 전 점검 생활화:</strong> 매일 첫 마취 시작 전, veta5 마취기의 자동 또는 수동 누출 검사(Leak Test)를 반드시 시행하여 회로의 밀폐 상태를 확인합니다.</li>
+                             <li><strong>소다라임 관리:</strong> 사용 시간을 기록하고, 색 변화가 1/2 이상 진행되면 미리 교체합니다. 장기간 사용하지 않은 경우에도 흡수력이 저하될 수 있음을 인지합니다.</li>
+                             <li><strong>정기적인 밸브 청소:</strong> 주 1회 또는 필요시 단방향 밸브를 분해하여 증류수로 세척하고 완전히 건조시켜 이물질이나 수분으로 인한 기능 이상을 예방합니다.</li>
+                         </ul>
+                     </div>
+                </section>
+        
+                <footer class="text-center mt-10 pt-5 border-t">
+                    <p class="text-gray-600">본 프로토콜은 임상적 판단을 돕기 위한 가이드이며, 최종적인 결정은 수의사의 책임 하에 이루어져야 합니다.</p>
+                    <p class="text-sm text-gray-500 mt-2">Anes AI for 금호동물병원</p>
+                </footer>
             </div>
         </div>
 
@@ -718,7 +953,6 @@
                 </div>
             </div>
         </div>
-
 
         <div id="chillEduTab" class="tab-content">
             <div class="card p-6 md:p-8">
