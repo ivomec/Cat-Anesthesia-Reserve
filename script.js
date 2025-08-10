@@ -12,8 +12,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function initializeAll() {
         // 전역 이벤트 리스너 바인딩
-        const globalInputs = ['globalPetName', 'weight', 'visitDate', 'patient_status', 'renal_status', 'chill_protocol', 'liverIssue', 'kidneyIssue', 'antibiotic_protocol'];
+        const globalInputs = ['globalPetName', 'weight', 'visitDate', 'patient_status', 'renal_status', 'chill_protocol', 'kidneyIssue', 'antibiotic_protocol'];
         globalInputs.forEach(id => document.getElementById(id)?.addEventListener('input', calculateAll));
+
+        // 간 이상 체크박스 특별 핸들러 추가
+        const liverCheckbox = document.getElementById('liverIssue');
+        liverCheckbox.addEventListener('change', (event) => {
+            if (event.target.checked) {
+                const liverMeds = ['udca', 'silymarin', 'same'];
+                liverMeds.forEach(drugName => {
+                    const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
+                    if (row) {
+                        row.querySelector('.med-checkbox').checked = true;
+                        row.querySelector('.days').value = 7;
+                    }
+                });
+            }
+            // 상태 변경 후 항상 전체 재계산
+            calculateAll();
+        });
         
         // 기능 버튼 이벤트 리스너
         document.getElementById('saveJsonBtn').addEventListener('click', saveDataAsJson);
@@ -561,56 +578,106 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeDischargeTab() {
         const dischargeInputs = document.querySelectorAll('#dischargeTab .med-checkbox, #dischargeTab .days, #dischargeTab .dose');
         dischargeInputs.forEach(input => {
+            input.addEventListener('input', calculateDischargeMeds);
             input.addEventListener('change', calculateDischargeMeds);
-            input.addEventListener('keyup', calculateDischargeMeds);
+        });
+
+        // 기본 처방 설정
+        const defaultMeds = {
+            '7day': ['clindamycin', 'gabapentin', 'famotidine', 'almagel'],
+            '3day': ['vetrocam', 'misoprostol', 'tramadol']
+        };
+
+        // 7일짜리 기본 처방 선택
+        defaultMeds['7day'].forEach(drugName => {
+            const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
+            if (row) {
+                row.querySelector('.med-checkbox').checked = true;
+                row.querySelector('.days').value = 7;
+            }
+        });
+
+        // 3일짜리 기본 처방 선택
+        defaultMeds['3day'].forEach(drugName => {
+            const row = document.querySelector(`#dischargeTab tr[data-drug="${drugName}"]`);
+            if (row) {
+                row.querySelector('.med-checkbox').checked = true;
+                row.querySelector('.days').value = 3;
+            }
         });
     }
 
     function calculateDischargeMeds() {
         const weight = parseFloat(document.getElementById('weight').value);
         if (isNaN(weight) || weight <= 0) {
-             document.getElementById('summary').innerHTML = '<p>상단의 환자 체중을 입력해주세요.</p>';
+             document.querySelector('#dischargeTab #summary').innerHTML = '<p>상단의 환자 체중을 입력해주세요.</p>';
              document.querySelectorAll('#dischargeTab .total-amount').forEach(el => el.textContent = '');
              return;
         }
 
         const summaryData = {};
+
         document.querySelectorAll('#dischargeTab .med-checkbox:checked').forEach(checkbox => {
             const row = checkbox.closest('tr');
             const drugName = row.cells[1].textContent;
             const days = parseInt(row.querySelector('.days').value);
             const unit = row.dataset.unit;
+            let totalAmount = 0;
             let totalAmountText = '';
-            let dailyMultiplier = 2;
+            let dailyMultiplier = 2; // 1일 2회 투여 기본 (BID)
 
             if (row.dataset.special === 'vetrocam') {
-                dailyMultiplier = 1;
-                const totalAmount = (days > 0) ? (weight * 0.2) + (weight * 0.1 * (days - 1)) : 0;
-                totalAmountText = `${totalAmount.toFixed(2)} ${unit}`;
+                dailyMultiplier = 1; // 1일 1회
+                const day1Dose = weight * 0.2;
+                const otherDaysDose = weight * 0.1 * (days - 1);
+                totalAmount = day1Dose + (days > 1 ? otherDaysDose : 0);
+                totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
+                
             } else if (row.dataset.special === 'same') {
-                dailyMultiplier = 1;
-                totalAmountText = `${((weight / 2.5) * 0.25 * days).toFixed(1)} ${unit}`;
+                dailyMultiplier = 1; // 1일 1회
+                totalAmount = (weight / 2.5) * 0.25 * days;
+                totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
+
             } else if (row.dataset.special === 'paramel') {
-                totalAmountText = `${(weight * 0.75 * 2 * days).toFixed(1)} ${unit}`;
+                 dailyMultiplier = 2;
+                 const dose = 0.75;
+                 totalAmount = weight * dose * dailyMultiplier * days;
+                 totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
+            
             } else {
                 const dose = parseFloat(row.querySelector('.dose').value);
                 const strength = parseFloat(row.dataset.strength);
-                if (!isNaN(dose) && !isNaN(strength) && strength > 0) {
-                    if (!['udca', 'silymarin', 'itraconazole'].includes(row.dataset.drug)) dailyMultiplier = 2;
-                    totalAmountText = `${((weight * dose * dailyMultiplier * days) / strength).toFixed(1)} ${unit}`;
+                if (strength > 0 && !isNaN(dose)) {
+                    // 용법에 따라 1일 투여 횟수 결정 (원본 로직 유지)
+                    // 대부분의 약은 1일 2회 (dailyMultiplier=2)가 기본값
+                    // UDCA, 실리마린, 이트라코나졸 등은 mg/kg/day 용량을 BID로 나눠 투여하는 개념이므로
+                    // 입력된 '1회 용량'에 dailyMultiplier를 곱하는 현재 방식이 맞음.
+                    totalAmount = (weight * dose * dailyMultiplier * days) / strength;
+                    totalAmountText = `${totalAmount.toFixed(1)} ${unit}`;
                 } else {
-                    totalAmountText = "용량/함량 오류";
+                    totalAmountText = "함량 필요";
                 }
             }
-            
+             
             row.querySelector('.total-amount').textContent = totalAmountText;
 
-            if (!summaryData[days]) summaryData[days] = [];
-            let summaryText = `${drugName.split(' (')[0]} ${totalAmountText}${dailyMultiplier === 1 ? ' (1일 1회)' : ''}`;
-            const isLiverDanger = row.querySelector('.notes[data-liver="true"]') && document.getElementById('liverIssue').checked;
-            const isKidneyDanger = row.querySelector('.notes[data-kidney="true"]') && document.getElementById('kidneyIssue').checked;
+            // 조제 요약 데이터 구성
+            if (!summaryData[days]) {
+                summaryData[days] = [];
+            }
+            
+            let summaryText = `${drugName.split(' (')[0]} ${totalAmountText}`;
+            if (dailyMultiplier === 1) {
+                 summaryText += ' (1일 1회)';
+            }
+            
+            const isLiverDanger = row.querySelector('.notes').dataset.liver === 'true' && document.getElementById('liverIssue').checked;
+            const isKidneyDanger = row.querySelector('.notes').dataset.kidney === 'true' && document.getElementById('kidneyIssue').checked;
 
-            summaryData[days].push({ text: summaryText, isDanger: isLiverDanger || isKidneyDanger });
+            summaryData[days].push({
+                text: summaryText,
+                isDanger: isLiverDanger || isKidneyDanger
+            });
         });
 
         updateSummaryUI(summaryData);
@@ -618,8 +685,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateSummaryUI(summaryData) {
-        const summaryContainer = document.getElementById('summary');
+        const summaryContainer = document.querySelector('#dischargeTab #summary');
         summaryContainer.innerHTML = '';
+
         const sortedDays = Object.keys(summaryData).sort((a, b) => a - b);
 
         if (sortedDays.length === 0) {
@@ -630,13 +698,22 @@ document.addEventListener('DOMContentLoaded', function () {
         sortedDays.forEach(day => {
             const box = document.createElement('div');
             box.className = 'summary-box';
-            box.innerHTML = `<h3>${day}일 처방</h3>`;
+            
+            const title = document.createElement('h3');
+            title.textContent = `${day}일 처방`;
+            box.appendChild(title);
+
             summaryData[day].forEach(item => {
                 const p = document.createElement('p');
                 p.className = 'summary-item';
-                p.innerHTML = item.isDanger ? `<span class="danger">${item.text}</span>` : item.text;
+                if (item.isDanger) {
+                    p.innerHTML = `<span class="danger">${item.text}</span>`;
+                } else {
+                    p.textContent = item.text;
+                }
                 box.appendChild(p);
             });
+
             summaryContainer.appendChild(box);
         });
     }
@@ -644,9 +721,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateDischargeWarnings() {
         const liverIssue = document.getElementById('liverIssue').checked;
         const kidneyIssue = document.getElementById('kidneyIssue').checked;
+
         document.querySelectorAll('#dischargeTab .notes').forEach(noteCell => {
             noteCell.classList.remove('highlight-warning');
-            if ((liverIssue && noteCell.dataset.liver) || (kidneyIssue && noteCell.dataset.kidney)) {
+            if ((liverIssue && noteCell.dataset.liver === 'true') || (kidneyIssue && noteCell.dataset.kidney === 'true')) {
                 noteCell.classList.add('highlight-warning');
             }
         });
@@ -757,4 +835,4 @@ document.addEventListener('DOMContentLoaded', function () {
             displayDiv.innerHTML = '<p class="text-gray-700">ET Tube가 아직 선택되지 않았습니다. \'ET Tube\' 탭에서 기록해주세요.</p>';
         }
     }
-});
+});```
